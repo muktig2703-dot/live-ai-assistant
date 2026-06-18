@@ -1,14 +1,23 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-
+from fastapi.middleware.cors import CORSMiddleware
 from services.ai_service import get_ai_response
 from tools.search_tool import search_web
 from agents.search_agent import needs_search
-
+from database.db import (
+    init_db,
+    save_message,
+    get_messages
+)
 app = FastAPI()
-
-# Conversation memory
-chat_history = []
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+init_db()
 
 
 class ChatRequest(BaseModel):
@@ -28,10 +37,7 @@ def chat(request: ChatRequest):
     user_message = request.message
 
     # Save user message
-    chat_history.append({
-        "role": "user",
-        "content": user_message
-    })
+    save_message("user", user_message)
 
     search_context = ""
 
@@ -74,16 +80,13 @@ Search Results:
     ]
 
     # Add memory
-    messages.extend(chat_history)
+    messages.extend(get_messages())
 
     # Get AI response
     answer = get_ai_response(messages)
 
     # Save assistant reply
-    chat_history.append({
-        "role": "assistant",
-        "content": answer
-    })
+    save_message("assistant", answer)
 
     return {
         "answer": answer
