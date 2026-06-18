@@ -119,12 +119,24 @@ async function sendMessage() {
     const loadingId = Date.now();
 
     chatBox.innerHTML += `
-        <div class="message ai-message" id="${loadingId}">
-            <div class="bubble loading">
-                AI is thinking...
-            </div>
+    <div class="message ai-message" id="${loadingId}">
+
+        <div class="avatar ai-avatar">
+            🤖
         </div>
-    `;
+
+        <div class="message-content">
+
+            <div class="bubble loading">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+        </div>
+
+    </div>
+`;
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
