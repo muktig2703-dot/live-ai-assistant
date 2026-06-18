@@ -48,3 +48,11 @@ def get_messages():
     conn.close()
 
     return messages
+
+def clear_messages():
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute("DELETE FROM messages")
+
+    conn.commit()
+    conn.close()

@@ -1,45 +1,155 @@
 body {
+    margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f4f4;
 }
 
 .container {
-    width: 700px;
-    margin: 40px auto;
+    width: 80%;
+    max-width: 900px;
+    margin: 20px auto;
 }
 
 h1 {
     text-align: center;
+    color: #333;
 }
 
 #chat-box {
+    height: 600px;
     background: white;
-    height: 500px;
+    border-radius: 12px;
+    padding: 20px;
     overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.user {
-    margin: 10px 0;
-    color: blue;
+.message {
+    display: flex;
+    margin: 12px 0;
 }
 
-.ai {
-    margin: 10px 0;
-    color: green;
+.user-message {
+    justify-content: flex-end;
+}
+
+.ai-message {
+    justify-content: flex-start;
+}
+
+.bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    word-wrap: break-word;
+}
+
+.user-message .bubble {
+    background: #0078ff;
+    color: white;
+}
+
+.ai-message .bubble {
+    background: #e9ecef;
+    color: black;
 }
 
 .input-area {
     display: flex;
-    margin-top: 10px;
+    margin-top: 15px;
+    gap: 10px;
 }
 
 input {
     flex: 1;
-    padding: 10px;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    background: #0078ff;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #005ed1;
+}
+
+.loading {
+    font-style: italic;
+    color: gray;
+}
+
+/* Header */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Dark Mode */
+
+.dark-mode {
+    background: #121212;
+    color: white;
+}
+
+.dark-mode #chat-box {
+    background: #1e1e1e;
+}
+
+.dark-mode .ai-message .bubble {
+    background: #333;
+    color: white;
+}
+
+.dark-mode input {
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+}
+
+.dark-mode h1 {
+    color: white;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+}
+
+.user-avatar {
+    background: #0078ff;
+    color: white;
+}
+
+.ai-avatar {
+    background: #444;
+    color: white;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: gray;
+    margin-top: 4px;
 }

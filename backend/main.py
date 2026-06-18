@@ -7,7 +7,8 @@ from agents.search_agent import needs_search
 from database.db import (
     init_db,
     save_message,
-    get_messages
+    get_messages,
+    clear_messages
 )
 app = FastAPI()
 app.add_middleware(
@@ -28,6 +29,19 @@ class ChatRequest(BaseModel):
 def home():
     return {
         "message": "Live AI Assistant Running"
+    }
+
+@app.get("/history")
+def history():
+    return get_messages()
+
+@app.delete("/history")
+def clear_history():
+
+    clear_messages()
+
+    return {
+        "message": "Chat history cleared"
     }
 
 
