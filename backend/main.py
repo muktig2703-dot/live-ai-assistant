@@ -1,16 +1,32 @@
-from fastapi import FastAPI
+import os
+import shutil
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File
+)
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+
 from services.ai_service import get_ai_response
+from services.document_service import extract_text
 from tools.search_tool import search_web
 from agents.search_agent import needs_search
+
 from database.db import (
     init_db,
+    create_chat,
+    get_chats,
+    rename_chat,
+    delete_chat,
+    toggle_pin,
+    toggle_archive,
     save_message,
-    get_messages,
-    clear_messages
+    get_messages
 )
+
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,12 +34,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 init_db()
 
+uploaded_document = ""
+
+
+# ----------------------------
+# MODELS
+# ----------------------------
 
 class ChatRequest(BaseModel):
+    chat_id: int
     message: str
 
+
+class RenameRequest(BaseModel):
+    title: str
+
+
+# ----------------------------
+# HOME
+# ----------------------------
 
 @app.get("/")
 def home():
@@ -31,31 +63,121 @@ def home():
         "message": "Live AI Assistant Running"
     }
 
-@app.get("/history")
-def history():
-    return get_messages()
 
-@app.delete("/history")
-def clear_history():
+# ----------------------------
+# CHAT MANAGEMENT
+# ----------------------------
 
-    clear_messages()
+@app.post("/chat/new")
+def new_chat():
+
+    chat_id = create_chat()
 
     return {
-        "message": "Chat history cleared"
+        "chat_id": chat_id
     }
 
+
+@app.get("/chats")
+def chats():
+
+    return get_chats()
+
+
+@app.put("/chat/{chat_id}/rename")
+def rename(chat_id: int, request: RenameRequest):
+
+    rename_chat(chat_id, request.title)
+
+    return {
+        "message": "Chat renamed"
+    }
+
+@app.put("/chat/{chat_id}/pin")
+def pin_chat(chat_id: int):
+
+    toggle_pin(chat_id)
+
+    return {
+        "message": "Pin status updated"
+    }
+
+@app.put("/chat/{chat_id}/archive")
+def archive_chat(chat_id: int):
+
+    toggle_archive(chat_id)
+
+    return {
+        "message": "Archive status updated"
+    }
+
+
+@app.delete("/chat/{chat_id}")
+def remove_chat(chat_id: int):
+
+    delete_chat(chat_id)
+
+    return {
+        "message": "Chat deleted"
+    }
+
+
+@app.get("/chat/{chat_id}/history")
+def history(chat_id: int):
+
+    return get_messages(chat_id)
+
+
+# ----------------------------
+# FILE UPLOAD
+# ----------------------------
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+
+    global uploaded_document
+
+    os.makedirs(
+        "uploads",
+        exist_ok=True
+    )
+
+    file_path = f"uploads/{file.filename}"
+
+    with open(file_path, "wb") as buffer:
+
+        shutil.copyfileobj(
+            file.file,
+            buffer
+        )
+
+    uploaded_document = extract_text(
+        file_path
+    )
+
+    return {
+        "filename": file.filename,
+        "characters": len(uploaded_document)
+    }
+
+# ----------------------------
+# AI CHAT
+# ----------------------------
 
 @app.post("/chat")
 def chat(request: ChatRequest):
 
+    chat_id = request.chat_id
     user_message = request.message
 
-    # Save user message
-    save_message("user", user_message)
+    save_message(
+        chat_id,
+        "user",
+        user_message
+    )
 
     search_context = ""
 
-    # Agent decides whether search is needed
     if needs_search(user_message):
 
         print("SEARCHING WEB...")
@@ -63,6 +185,7 @@ def chat(request: ChatRequest):
         search_results = search_web(user_message)
 
         for result in search_results:
+
             search_context += f"""
 Title: {result['title']}
 Content: {result['body']}
@@ -70,6 +193,7 @@ Content: {result['body']}
 """
 
     else:
+
         print("NO SEARCH NEEDED")
 
     messages = [
@@ -78,14 +202,11 @@ Content: {result['body']}
             "content": f"""
 You are a helpful AI assistant.
 
-The search has already been performed for you.
-
-DO NOT perform additional searches.
-DO NOT request tool calls.
+The search has already been performed.
 
 Use:
 1. Conversation history
-2. Search results (if available)
+2. Search results
 
 Search Results:
 {search_context}
@@ -93,14 +214,17 @@ Search Results:
         }
     ]
 
-    # Add memory
-    messages.extend(get_messages())
+    messages.extend(
+        get_messages(chat_id)
+    )
 
-    # Get AI response
     answer = get_ai_response(messages)
 
-    # Save assistant reply
-    save_message("assistant", answer)
+    save_message(
+        chat_id,
+        "assistant",
+        answer
+    )
 
     return {
         "answer": answer

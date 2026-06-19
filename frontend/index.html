@@ -6,49 +6,82 @@
 </head>
 <body>
 
-    <div class="container">
+<div class="app-layout">
 
-    <div class="header">
+    <!-- SIDEBAR -->
 
-        <h1>🤖 Live AI Assistant</h1>
+    <div class="sidebar">
 
-        <button id="theme-btn" onclick="toggleTheme()">
-            🌙 Dark Mode
+        <button
+    id="new-chat-btn"
+    onclick="createNewChat()"
+>
+            + New Chat
         </button>
+
+        <div id="chat-list">
+            <!-- Chats appear here -->
+        </div>
 
     </div>
 
-    <button onclick="clearChat()">
-        Clear Chat
-    </button>
 
-    <div id="chat-box"></div>
+    <!-- MAIN CHAT -->
 
-    <div class="input-area">
+    <div class="container">
 
-    <input
-        type="text"
-        id="message"
-        placeholder="Type a message..."
-    >
+        <div class="header">
 
-    <button onclick="startListening()">
-        🎤
-    </button>
+            <h1>🤖 Live AI Assistant</h1>
 
-    <button onclick="sendMessage()">
-        Send
-    </button>
+            <button id="theme-btn" onclick="toggleTheme()">
+                🌙 Dark Mode
+            </button>
 
-    <button id="voice-btn" onclick="toggleVoice()">
-    🔊 Voice ON
+        </div>
+
+        <button onclick="clearChat()">
+            Clear Chat
+        </button>
+
+        <div id="chat-box"></div>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="message"
+                placeholder="Type a message..."
+            >
+
+            <button onclick="startListening()">
+                🎤
+            </button>
+<input
+    type="file"
+    id="file-input"
+    hidden
+>
+
+<button onclick="selectFile()">
+    📎
 </button>
 
-</div>
+            <button onclick="sendMessage()">
+                Send
+            </button>
+
+            <button id="voice-btn" onclick="toggleVoice()">
+                🔊 Voice ON
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>

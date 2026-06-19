@@ -1,3 +1,4 @@
+let currentChatId = null;
 let voiceEnabled = true;
 
 function getCurrentTime() {
@@ -92,6 +93,26 @@ async function clearChat() {
     document.getElementById("chat-box").innerHTML = "";
 }
 
+async function createNewChat() {
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/chat/new",
+        {
+            method: "POST"
+        }
+    );
+
+    const data = await response.json();
+
+    currentChatId = data.chat_id;
+
+    document.getElementById(
+        "chat-box"
+    ).innerHTML = "";
+
+    loadChats();
+}
+
 
 async function sendMessage() {
 
@@ -101,6 +122,13 @@ async function sendMessage() {
     const message = input.value.trim();
 
     if (!message) return;
+
+    if (!currentChatId) {
+
+    alert("Please create or select a chat first.");
+
+    return;
+}
 
     chatBox.innerHTML += `
         <div class="message user-message">
@@ -160,8 +188,9 @@ async function sendMessage() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: message
-                })
+    chat_id: currentChatId,
+    message: message
+})
             }
         );
 
@@ -287,7 +316,7 @@ document
     });
 
 
-loadHistory();
+
 
 function toggleVoice() {
 
@@ -302,4 +331,282 @@ function toggleVoice() {
         btn.innerText = "🔇 Voice OFF";
         window.speechSynthesis.cancel();
     }
+}
+
+async function loadChats() {
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/chats"
+    );
+
+    const chats = await response.json();
+
+    const chatList =
+        document.getElementById("chat-list");
+
+    chatList.innerHTML = "";
+
+    // Pinned Section
+
+    chatList.innerHTML += `
+        <h3>📌 Pinned</h3>
+    `;
+
+    chats
+        .filter(chat => chat.is_pinned && !chat.is_archived)
+        .forEach(chat => {
+
+            renderChat(chat);
+        });
+
+    // Regular Section
+
+    chatList.innerHTML += `
+        <h3>💬 Chats</h3>
+    `;
+
+    chats
+        .filter(chat => !chat.is_pinned && !chat.is_archived)
+        .forEach(chat => {
+
+            renderChat(chat);
+        });
+
+    // Archived Section
+
+    chatList.innerHTML += `
+        <h3>📁 Archived</h3>
+    `;
+
+    chats
+        .filter(chat => chat.is_archived)
+        .forEach(chat => {
+
+            renderChat(chat);
+        });
+}
+
+function renderChat(chat) {
+
+    const chatList =
+        document.getElementById("chat-list");
+
+    chatList.innerHTML += `
+        <div class="chat-item">
+
+            <span
+                onclick="openChat(${chat.id})"
+            >
+                ${chat.title}
+            </span>
+
+            <div class="chat-actions">
+
+                <button
+                    onclick="pinChat(${chat.id})"
+                >
+                    📌
+                </button>
+
+                <button
+                    onclick="archiveChat(${chat.id})"
+                >
+                    📁
+                </button>
+
+                <button
+                    onclick="renameChat(${chat.id})"
+                >
+                    ✏️
+                </button>
+
+                <button
+                    onclick="deleteChat(${chat.id})"
+                >
+                    🗑️
+                </button>
+
+            </div>
+
+        </div>
+    `;
+}
+
+async function renameChat(chatId) {
+
+    const newTitle = prompt(
+        "Enter new chat name:"
+    );
+
+    if (!newTitle) return;
+
+    await fetch(
+        `http://127.0.0.1:8000/chat/${chatId}/rename`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: newTitle
+            })
+        }
+    );
+
+    loadChats();
+}
+
+async function deleteChat(chatId) {
+
+    const confirmDelete = confirm(
+        "Delete this chat?"
+    );
+
+    if (!confirmDelete) return;
+
+    await fetch(
+        `http://127.0.0.1:8000/chat/${chatId}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    document.getElementById(
+        "chat-box"
+    ).innerHTML = "";
+
+    loadChats();
+}
+
+async function pinChat(chatId) {
+
+    await fetch(
+        `http://127.0.0.1:8000/chat/${chatId}/pin`,
+        {
+            method: "PUT"
+        }
+    );
+
+    loadChats();
+}
+
+async function archiveChat(chatId) {
+
+    await fetch(
+        `http://127.0.0.1:8000/chat/${chatId}/archive`,
+        {
+            method: "PUT"
+        }
+    );
+
+    loadChats();
+}
+
+
+async function openChat(chatId) {
+
+    currentChatId = chatId;
+
+    const response = await fetch(
+        `http://127.0.0.1:8000/chat/${chatId}/history`
+    );
+
+    const messages = await response.json();
+
+    const chatBox =
+        document.getElementById("chat-box");
+
+    chatBox.innerHTML = "";
+
+    messages.forEach(message => {
+
+        if (message.role === "user") {
+
+            chatBox.innerHTML += `
+                <div class="message user-message">
+                    <div class="message-content">
+                        <div class="bubble">
+                            ${message.content}
+                        </div>
+                    </div>
+
+                    <div class="avatar user-avatar">
+                        👤
+                    </div>
+                </div>
+            `;
+        }
+
+        else {
+
+            chatBox.innerHTML += `
+                <div class="message ai-message">
+
+                    <div class="avatar ai-avatar">
+                        🤖
+                    </div>
+
+                    <div class="message-content">
+
+                        <div class="bubble">
+                            ${message.content}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+    });
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+}
+
+loadChats();
+
+function selectFile() {
+
+    document
+        .getElementById("file-input")
+        .click();
+}
+
+document
+    .getElementById("file-input")
+    .addEventListener(
+        "change",
+        uploadFile
+    );
+
+    async function uploadFile(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "file",
+        file
+    );
+
+    const response =
+        await fetch(
+            "http://127.0.0.1:8000/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+    const data =
+        await response.json();
+
+    alert(
+        `Uploaded: ${data.filename}`
+    );
 }

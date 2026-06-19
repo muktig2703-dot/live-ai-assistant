@@ -7,10 +7,21 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
 
     conn.execute("""
+    CREATE TABLE IF NOT EXISTS chats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        is_pinned INTEGER DEFAULT 0,
+        is_archived INTEGER DEFAULT 0
+    )
+    """)
+
+    conn.execute("""
     CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chat_id INTEGER,
         role TEXT NOT NULL,
-        content TEXT NOT NULL
+        content TEXT NOT NULL,
+        FOREIGN KEY(chat_id) REFERENCES chats(id)
     )
     """)
 
@@ -18,23 +29,151 @@ def init_db():
     conn.close()
 
 
-def save_message(role, content):
+# ------------------------
+# CHAT FUNCTIONS
+# ------------------------
+
+def create_chat(title="New Chat"):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    cursor = conn.execute(
+        "INSERT INTO chats (title) VALUES (?)",
+        (title,)
+    )
+
+    chat_id = cursor.lastrowid
+
+    conn.commit()
+    conn.close()
+
+    return chat_id
+
+
+def get_chats():
+
+    conn = sqlite3.connect(DB_NAME)
+
+    cursor = conn.execute("""
+    SELECT id, title, is_pinned, is_archived
+    FROM chats
+    ORDER BY is_pinned DESC, id DESC
+    """)
+
+    chats = []
+
+    for row in cursor:
+        chats.append({
+            "id": row[0],
+            "title": row[1],
+            "is_pinned": row[2],
+            "is_archived": row[3]
+        })
+
+    conn.close()
+
+    return chats
+
+
+def rename_chat(chat_id, title):
+
     conn = sqlite3.connect(DB_NAME)
 
     conn.execute(
-        "INSERT INTO messages (role, content) VALUES (?, ?)",
-        (role, content)
+        "UPDATE chats SET title=? WHERE id=?",
+        (title, chat_id)
     )
 
     conn.commit()
     conn.close()
 
 
-def get_messages():
+def delete_chat(chat_id):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        "DELETE FROM messages WHERE chat_id=?",
+        (chat_id,)
+    )
+
+    conn.execute(
+        "DELETE FROM chats WHERE id=?",
+        (chat_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+def toggle_pin(chat_id):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute("""
+        UPDATE chats
+        SET is_pinned =
+        CASE
+            WHEN is_pinned = 1 THEN 0
+            ELSE 1
+        END
+        WHERE id = ?
+    """, (chat_id,))
+
+    conn.commit()
+    conn.close()
+
+
+def toggle_archive(chat_id):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute("""
+        UPDATE chats
+        SET is_archived =
+        CASE
+            WHEN is_archived = 1 THEN 0
+            ELSE 1
+        END
+        WHERE id = ?
+    """, (chat_id,))
+
+    conn.commit()
+    conn.close()
+
+    
+# ------------------------
+# MESSAGE FUNCTIONS
+# ------------------------
+
+def save_message(chat_id, role, content):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        """
+        INSERT INTO messages
+        (chat_id, role, content)
+        VALUES (?, ?, ?)
+        """,
+        (chat_id, role, content)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_messages(chat_id):
+
     conn = sqlite3.connect(DB_NAME)
 
     cursor = conn.execute(
-        "SELECT role, content FROM messages ORDER BY id"
+        """
+        SELECT role, content
+        FROM messages
+        WHERE chat_id=?
+        ORDER BY id
+        """,
+        (chat_id,)
     )
 
     messages = []
@@ -48,11 +187,3 @@ def get_messages():
     conn.close()
 
     return messages
-
-def clear_messages():
-    conn = sqlite3.connect(DB_NAME)
-
-    conn.execute("DELETE FROM messages")
-
-    conn.commit()
-    conn.close()

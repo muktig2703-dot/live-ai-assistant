@@ -1,3 +1,62 @@
+.app-layout {
+
+    display: flex;
+    height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+
+    width: 260px;
+
+    background: #202123;
+
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px;
+
+    overflow-y: auto;
+}
+
+#new-chat-btn {
+
+    width: 100%;
+
+    margin-bottom: 15px;
+
+    background: #343541;
+}
+
+#chat-list {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.chat-item {
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    background: #343541;
+
+    transition: 0.2s;
+}
+
+.chat-item:hover {
+
+    background: #4b4d5a;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -5,9 +64,14 @@ body {
 }
 
 .container {
-    width: 80%;
-    max-width: 900px;
-    margin: 20px auto;
+
+    flex: 1;
+
+    padding: 20px;
+
+    display: flex;
+
+    flex-direction: column;
 }
 
 h1 {
@@ -277,4 +341,38 @@ button:active {
 
         font-size: 18px;
     }
+}
+
+.chat-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.chat-actions {
+
+    display: flex;
+
+    gap: 5px;
+}
+
+.chat-actions button {
+
+    padding: 4px 8px;
+
+    font-size: 14px;
+}
+
+#chat-list h3 {
+
+    margin-top: 15px;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    color: #aaa;
 }
