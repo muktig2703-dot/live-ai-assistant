@@ -376,3 +376,27 @@ button:active {
 
     color: #aaa;
 }
+
+#chat-search {
+
+    width: 100%;
+
+    padding: 10px;
+
+    margin-bottom: 10px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ccc;
+
+    box-sizing: border-box;
+}
+
+.dark-mode #chat-search {
+
+    background: #222;
+
+    color: white;
+
+    border: 1px solid #555;
+}

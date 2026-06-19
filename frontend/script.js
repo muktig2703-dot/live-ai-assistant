@@ -1,5 +1,6 @@
 let currentChatId = null;
 let voiceEnabled = true;
+let currentChatTitle = "";
 
 function getCurrentTime() {
 
@@ -105,6 +106,7 @@ async function createNewChat() {
     const data = await response.json();
 
     currentChatId = data.chat_id;
+    currentChatTitle = "New Chat";
 
     document.getElementById(
         "chat-box"
@@ -122,6 +124,33 @@ async function sendMessage() {
     const message = input.value.trim();
 
     if (!message) return;
+
+    if (
+    currentChatTitle === "New Chat" &&
+    message.length > 0
+) {
+
+    const title =
+        message.substring(0, 30);
+
+    await fetch(
+        `http://127.0.0.1:8000/chat/${currentChatId}/rename`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                title: title
+            })
+        }
+    );
+
+    currentChatTitle = title;
+
+    await loadChats();
+}
 
     if (!currentChatId) {
 
@@ -392,10 +421,13 @@ function renderChat(chat) {
         document.getElementById("chat-list");
 
     chatList.innerHTML += `
-        <div class="chat-item">
+        <div
+    class="chat-item"
+    data-title="${chat.title.toLowerCase()}"
+>
 
             <span
-                onclick="openChat(${chat.id})"
+                onclick="openChat(${chat.id}, '${chat.title.replace(/'/g, "\\'")}')"
             >
                 ${chat.title}
             </span>
@@ -503,9 +535,10 @@ async function archiveChat(chatId) {
 }
 
 
-async function openChat(chatId) {
+async function openChat(chatId, chatTitle) {
 
     currentChatId = chatId;
+     currentChatTitle = chatTitle;
 
     const response = await fetch(
         `http://127.0.0.1:8000/chat/${chatId}/history`
@@ -623,4 +656,32 @@ document
     alert(
         `Uploaded: ${data.filename}`
     );
+}
+
+function filterChats() {
+
+    const search =
+        document
+            .getElementById("chat-search")
+            .value
+            .toLowerCase();
+
+    const chats =
+        document.querySelectorAll(".chat-item");
+
+    chats.forEach(chat => {
+
+        const title =
+            chat.dataset.title;
+
+        if (title.includes(search)) {
+
+            chat.style.display = "flex";
+        }
+
+        else {
+
+            chat.style.display = "none";
+        }
+    });
 }

@@ -186,7 +186,7 @@ def chat(request: ChatRequest):
 
      document_name = document["filename"]
 
-    document_content = document["content"]
+     document_content = document["content"]
 
     save_message(
         chat_id,
