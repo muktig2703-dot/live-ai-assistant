@@ -5,6 +5,7 @@ from fastapi import (
     UploadFile,
     File
 )
+from fastapi import Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,7 +23,9 @@ from database.db import (
     toggle_pin,
     toggle_archive,
     save_message,
-    get_messages
+    get_messages,
+    save_document,
+    get_document
 )
 
 app = FastAPI()
@@ -36,8 +39,6 @@ app.add_middleware(
 )
 
 init_db()
-
-uploaded_document = ""
 
 
 # ----------------------------
@@ -133,9 +134,10 @@ def history(chat_id: int):
 # ----------------------------
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
-
-    global uploaded_document
+async def upload_file(
+    chat_id: int = Form(...),
+    file: UploadFile = File(...)
+):
 
     os.makedirs(
         "uploads",
@@ -151,13 +153,19 @@ async def upload_file(file: UploadFile = File(...)):
             buffer
         )
 
-    uploaded_document = extract_text(
+    document_text = extract_text(
         file_path
+    )
+
+    save_document(
+        chat_id,
+        file.filename,
+        document_text
     )
 
     return {
         "filename": file.filename,
-        "characters": len(uploaded_document)
+        "characters": len(document_text)
     }
 
 # ----------------------------
@@ -169,6 +177,16 @@ def chat(request: ChatRequest):
 
     chat_id = request.chat_id
     user_message = request.message
+    document = get_document(chat_id)
+
+    document_name = ""
+    document_content = ""
+
+    if document:
+
+     document_name = document["filename"]
+
+    document_content = document["content"]
 
     save_message(
         chat_id,
@@ -197,19 +215,25 @@ Content: {result['body']}
         print("NO SEARCH NEEDED")
 
     messages = [
-        {
-            "role": "system",
-            "content": f"""
+    {
+        "role": "system",
+        "content": f"""
 You are a helpful AI assistant.
 
-The search has already been performed.
-
 Use:
+
 1. Conversation history
 2. Search results
+3. Uploaded document (if available)
 
 Search Results:
 {search_context}
+
+Uploaded File:
+{document_name}
+
+Document Content:
+{document_content[:12000]}
 """
         }
     ]

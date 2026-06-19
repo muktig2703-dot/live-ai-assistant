@@ -581,6 +581,15 @@ document
 
     async function uploadFile(event) {
 
+        if (!currentChatId) {
+
+    alert(
+        "Please select a chat first."
+    );
+
+    return;
+}
+
     const file =
         event.target.files[0];
 
@@ -593,6 +602,11 @@ document
         "file",
         file
     );
+
+    formData.append(
+    "chat_id",
+    currentChatId
+);
 
     const response =
         await fetch(

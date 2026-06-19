@@ -25,6 +25,16 @@ def init_db():
     )
     """)
 
+    conn.execute("""
+CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chat_id INTEGER,
+    filename TEXT,
+    content TEXT,
+    FOREIGN KEY(chat_id) REFERENCES chats(id)
+)
+""")
+
     conn.commit()
     conn.close()
 
@@ -187,3 +197,56 @@ def get_messages(chat_id):
     conn.close()
 
     return messages
+
+# ------------------------
+# DOCUMENT FUNCTIONS
+# ------------------------
+
+def save_document(
+    chat_id,
+    filename,
+    content
+):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        """
+        INSERT INTO documents
+        (chat_id, filename, content)
+        VALUES (?, ?, ?)
+        """,
+        (chat_id, filename, content)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_document(chat_id):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    cursor = conn.execute(
+        """
+        SELECT filename, content
+        FROM documents
+        WHERE chat_id=?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (chat_id,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row:
+
+        return {
+            "filename": row[0],
+            "content": row[1]
+        }
+
+    return None
