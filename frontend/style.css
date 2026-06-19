@@ -224,3 +224,57 @@ button:active {
 
     transform: scale(0.98);
 }
+
+/* Mobile Responsive */
+
+@media (max-width: 768px) {
+
+    .container {
+
+        width: 95%;
+        height: 95vh;
+
+        margin: 10px auto;
+    }
+
+    h1 {
+
+        font-size: 24px;
+        text-align: center;
+    }
+
+    #chat-box {
+
+        padding: 10px;
+    }
+
+    .bubble {
+
+        max-width: 85%;
+        font-size: 14px;
+    }
+
+    .input-area {
+
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .input-area input {
+
+        width: 100%;
+    }
+
+    .input-area button {
+
+        width: 100%;
+    }
+
+    .avatar {
+
+        width: 35px;
+        height: 35px;
+
+        font-size: 18px;
+    }
+}
