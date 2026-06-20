@@ -54,6 +54,7 @@ init_db()
 class ChatRequest(BaseModel):
     chat_id: int
     message: str
+    model: str
 
 
 class RenameRequest(BaseModel):
@@ -199,6 +200,7 @@ def chat(request: ChatRequest):
 
     chat_id = request.chat_id
     user_message = request.message
+    selected_model = request.model
     document = get_document(chat_id)
 
     document_name = ""
@@ -289,7 +291,8 @@ Document Content:
     else:
 
        answer = get_ai_response(
-        messages
+        messages,
+        selected_model
     )
 
     save_message(
@@ -398,3 +401,45 @@ def shared_chat(token: str):
         }
 
     return get_messages(chat_id)
+
+@app.get("/search")
+def search_chats(q: str):
+
+    chats = get_chats()
+
+    results = []
+
+    for chat in chats:
+
+        messages = get_messages(
+            chat["id"]
+        )
+
+        found = False
+        preview = ""
+
+        for message in messages:
+
+            if q.lower() in message["content"].lower():
+
+                found = True
+
+                preview = (
+                    message["content"][:80]
+                    + "..."
+                )
+
+                break
+
+        if (
+            found
+            or q.lower() in chat["title"].lower()
+        ):
+
+            results.append({
+                "chat_id": chat["id"],
+                "title": chat["title"],
+                "preview": preview
+            })
+
+    return results

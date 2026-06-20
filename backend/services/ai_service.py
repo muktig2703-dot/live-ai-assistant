@@ -6,17 +6,23 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
     base_url="https://openrouter.ai/api/v1"
 )
-def get_ai_response(messages):
+def get_ai_response(messages, model):
 
-    response = client.chat.completions.create(
-        model="openai/gpt-4o-mini",
-        messages=messages
-    )
+    try:
 
-    print("\nFULL RESPONSE:")
-    print(response)
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=1000
+        )
 
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+
+    except Exception as e:
+
+        print(e)
+
+        return f"Model Error: {str(e)}"
 
 
 def get_ai_vision_response(

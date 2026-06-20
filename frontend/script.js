@@ -208,7 +208,10 @@ async function sendMessage() {
     chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
-
+   const selectedModel =
+    document.getElementById(
+        "model-select"
+    ).value;
         const response = await fetch(
             "http://127.0.0.1:8000/chat",
             {
@@ -218,7 +221,8 @@ async function sendMessage() {
                 },
                 body: JSON.stringify({
     chat_id: currentChatId,
-    message: message
+    message: message,
+    model: selectedModel
 })
             }
         );
@@ -237,8 +241,8 @@ async function sendMessage() {
                 <div class="message-content">
 
                     <div class="bubble">
-                        ${data.answer}
-                    </div>
+    ${marked.parse(data.answer)}
+</div>
 
                     <div class="timestamp">
                         ${getCurrentTime()}
@@ -248,6 +252,14 @@ async function sendMessage() {
 
             </div>
         `;
+
+        document
+    .querySelectorAll("pre code")
+    .forEach((block) => {
+
+        hljs.highlightElement(block);
+
+    });
 
         chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -587,8 +599,8 @@ async function openChat(chatId, chatTitle) {
                     <div class="message-content">
 
                         <div class="bubble">
-                            ${message.content}
-                        </div>
+    ${marked.parse(message.content)}
+</div>
 
                     </div>
 
@@ -596,7 +608,13 @@ async function openChat(chatId, chatTitle) {
             `;
         }
     });
+document
+    .querySelectorAll("pre code")
+    .forEach((block) => {
 
+        hljs.highlightElement(block);
+
+    });
     chatBox.scrollTop =
         chatBox.scrollHeight;
 }
@@ -663,31 +681,62 @@ document
     );
 }
 
-function filterChats() {
+async function filterChats() {
 
     const search =
         document
             .getElementById("chat-search")
             .value
-            .toLowerCase();
+            .trim();
 
-    const chats =
-        document.querySelectorAll(".chat-item");
+    if (!search) {
 
-    chats.forEach(chat => {
+        loadChats();
+        return;
+    }
 
-        const title =
-            chat.dataset.title;
+    const response =
+        await fetch(
+            `http://127.0.0.1:8000/search?q=${encodeURIComponent(search)}`
+        );
 
-        if (title.includes(search)) {
+    const results =
+        await response.json();
 
-            chat.style.display = "flex";
-        }
+    const chatList =
+        document.getElementById("chat-list");
 
-        else {
+    chatList.innerHTML = `
+        <h3>🔍 Search Results</h3>
+    `;
 
-            chat.style.display = "none";
-        }
+    results.forEach(result => {
+
+        chatList.innerHTML += `
+            <div
+                class="chat-item"
+                onclick="openChat(
+                    ${result.chat_id},
+                    '${result.title.replace(/'/g, "\\'")}'
+                )"
+            >
+
+                <div>
+
+                    <strong>
+                        ${result.title}
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        ${result.preview}
+                    </small>
+
+                </div>
+
+            </div>
+        `;
     });
 }
 
@@ -775,3 +824,125 @@ async function shareChat() {
         "Share link copied!"
     );
 }
+
+const dropZone =
+    document.getElementById("drop-zone");
+
+document.addEventListener(
+    "dragover",
+    (event) => {
+
+        event.preventDefault();
+
+        dropZone.classList.add(
+            "active"
+        );
+    }
+);
+
+document.addEventListener(
+    "dragleave",
+    () => {
+
+        dropZone.classList.remove(
+            "active"
+        );
+    }
+);
+
+document.addEventListener(
+    "drop",
+    async (event) => {
+
+        event.preventDefault();
+
+        dropZone.classList.remove(
+            "active"
+        );
+
+        const file =
+            event.dataTransfer.files[0];
+
+        if (!file) return;
+
+        if (!currentChatId) {
+
+            alert(
+                "Please select a chat first."
+            );
+
+            return;
+        }
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            file
+        );
+
+        formData.append(
+            "chat_id",
+            currentChatId
+        );
+
+        const progressContainer =
+    document.getElementById(
+        "upload-progress-container"
+    );
+
+const progressBar =
+    document.getElementById(
+        "upload-progress-bar"
+    );
+
+progressContainer.style.display =
+    "block";
+
+const xhr = new XMLHttpRequest();
+
+xhr.open(
+    "POST",
+    "http://127.0.0.1:8000/upload"
+);
+
+xhr.upload.onprogress =
+    (event) => {
+
+        if (event.lengthComputable) {
+
+            const percent =
+                (event.loaded / event.total) * 100;
+
+            progressBar.style.width =
+                percent + "%";
+        }
+    };
+
+xhr.onload = () => {
+
+    progressBar.style.width =
+        "100%";
+
+    setTimeout(() => {
+
+        progressContainer.style.display =
+            "none";
+
+        progressBar.style.width =
+            "0%";
+
+    }, 1000);
+
+    const data =
+        JSON.parse(xhr.responseText);
+
+    alert(
+        `Uploaded: ${data.filename}`
+    );
+};
+
+xhr.send(formData);
+ }
+);
