@@ -422,7 +422,11 @@ function renderChat(chat) {
 
     chatList.innerHTML += `
         <div
-    class="chat-item"
+    class="chat-item ${
+        chat.id === currentChatId
+            ? "active-chat"
+            : ""
+    }"
     data-title="${chat.title.toLowerCase()}"
 >
 
@@ -538,7 +542,8 @@ async function archiveChat(chatId) {
 async function openChat(chatId, chatTitle) {
 
     currentChatId = chatId;
-     currentChatTitle = chatTitle;
+    loadChats();
+    currentChatTitle = chatTitle;
 
     const response = await fetch(
         `http://127.0.0.1:8000/chat/${chatId}/history`

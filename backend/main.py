@@ -204,6 +204,7 @@ def chat(request: ChatRequest):
     document_name = ""
     document_content = ""
     document_path = ""
+    is_image = False
 
     if document:
 
