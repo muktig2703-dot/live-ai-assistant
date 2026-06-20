@@ -1,5 +1,5 @@
 import sqlite3
-
+import uuid
 DB_NAME = "memory.db"
 
 
@@ -31,7 +31,16 @@ CREATE TABLE IF NOT EXISTS documents (
     chat_id INTEGER,
     filename TEXT,
     content TEXT,
+    file_path TEXT,
     FOREIGN KEY(chat_id) REFERENCES chats(id)
+)
+""")
+    
+    conn.execute("""
+CREATE TABLE IF NOT EXISTS shared_chats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chat_id INTEGER,
+    share_token TEXT UNIQUE
 )
 """)
 
@@ -205,7 +214,8 @@ def get_messages(chat_id):
 def save_document(
     chat_id,
     filename,
-    content
+    content,
+    file_path=""
 ):
 
     conn = sqlite3.connect(DB_NAME)
@@ -213,10 +223,10 @@ def save_document(
     conn.execute(
         """
         INSERT INTO documents
-        (chat_id, filename, content)
-        VALUES (?, ?, ?)
+        (chat_id, filename, content, file_path)
+        VALUES (?, ?, ?, ?)
         """,
-        (chat_id, filename, content)
+        (chat_id, filename, content,file_path)
     )
 
     conn.commit()
@@ -229,7 +239,7 @@ def get_document(chat_id):
 
     cursor = conn.execute(
         """
-        SELECT filename, content
+        SELECT filename, content, file_path
         FROM documents
         WHERE chat_id=?
         ORDER BY id DESC
@@ -246,7 +256,50 @@ def get_document(chat_id):
 
         return {
             "filename": row[0],
-            "content": row[1]
+            "content": row[1],
+            "file_path": row[2]
         }
 
     return None
+
+def create_share_link(chat_id):
+
+    token = str(uuid.uuid4())
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        """
+        INSERT INTO shared_chats
+        (chat_id, share_token)
+        VALUES (?, ?)
+        """,
+        (chat_id, token)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return token
+
+def get_shared_chat(token):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    cursor = conn.execute(
+        """
+        SELECT chat_id
+        FROM shared_chats
+        WHERE share_token=?
+        """,
+        (token,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if not row:
+        return None
+
+    return row[0]

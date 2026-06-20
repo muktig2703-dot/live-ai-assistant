@@ -8,11 +8,15 @@ from fastapi import (
 from fastapi import Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
-from services.ai_service import get_ai_response
+from fastapi.responses import PlainTextResponse
+from services.ai_service import (get_ai_response, get_ai_vision_response)
 from services.document_service import extract_text
 from tools.search_tool import search_web
 from agents.search_agent import needs_search
+from fastapi.responses import FileResponse
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from services.image_service import encode_image
 
 from database.db import (
     init_db,
@@ -25,7 +29,9 @@ from database.db import (
     save_message,
     get_messages,
     save_document,
-    get_document
+    get_document,
+    create_share_link,
+    get_shared_chat
 )
 
 app = FastAPI()
@@ -153,14 +159,30 @@ async def upload_file(
             buffer
         )
 
-    document_text = extract_text(
+    if file.filename.lower().endswith(
+    (".pdf", ".docx", ".txt")
+):
+
+       document_text = extract_text(
         file_path
     )
 
-    save_document(
+       save_document(
         chat_id,
         file.filename,
-        document_text
+        document_text,
+        file_path
+    )
+
+    else:
+
+      document_text = ""
+
+      save_document(
+        chat_id,
+        file.filename,
+        "",
+        file_path
     )
 
     return {
@@ -181,12 +203,22 @@ def chat(request: ChatRequest):
 
     document_name = ""
     document_content = ""
+    document_path = ""
 
     if document:
 
      document_name = document["filename"]
 
      document_content = document["content"]
+
+     document_path = document["file_path"]
+
+     is_image = False
+
+    if document_path.lower().endswith(
+    (".png", ".jpg", ".jpeg")
+):
+       is_image = True
 
     save_message(
         chat_id,
@@ -242,7 +274,22 @@ Document Content:
         get_messages(chat_id)
     )
 
-    answer = get_ai_response(messages)
+    if is_image:
+
+       base64_image = encode_image(
+        document_path
+    )
+
+       answer = get_ai_vision_response(
+        user_message,
+        base64_image
+    )
+
+    else:
+
+       answer = get_ai_response(
+        messages
+    )
 
     save_message(
         chat_id,
@@ -253,3 +300,100 @@ Document Content:
     return {
         "answer": answer
     }
+#-----------------------------------------------
+#EXPORT CHAT
+#-----------------------------------------------
+@app.get("/chat/{chat_id}/export")
+def export_chat(chat_id: int):
+
+    messages = get_messages(chat_id)
+
+    content = ""
+
+    for message in messages:
+
+        content += (
+            f"{message['role'].upper()}:\n"
+            f"{message['content']}\n\n"
+        )
+
+    return PlainTextResponse(content)
+
+@app.get("/chat/{chat_id}/export/pdf")
+def export_chat_pdf(chat_id: int):
+
+    messages = get_messages(chat_id)
+
+    filename = f"chat_{chat_id}.pdf"
+
+    doc = SimpleDocTemplate(filename)
+
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    elements.append(
+        Paragraph(
+            "Live AI Assistant Chat Export",
+            styles["Title"]
+        )
+    )
+
+    elements.append(
+        Spacer(1, 20)
+    )
+
+    for message in messages:
+
+        role = message["role"].upper()
+
+        content = message["content"]
+
+        elements.append(
+            Paragraph(
+                f"<b>{role}</b>",
+                styles["Heading3"]
+            )
+        )
+
+        elements.append(
+            Paragraph(
+                content,
+                styles["BodyText"]
+            )
+        )
+
+        elements.append(
+            Spacer(1, 10)
+        )
+
+    doc.build(elements)
+
+    return FileResponse(
+        filename,
+        media_type="application/pdf",
+        filename=filename
+    )
+
+@app.post("/chat/{chat_id}/share")
+def share_chat(chat_id: int):
+
+    token = create_share_link(chat_id)
+
+    return {
+        "share_url":
+        f"http://127.0.0.1:5500/share.html?token={token}"
+    }
+
+@app.get("/shared/{token}")
+def shared_chat(token: str):
+
+    chat_id = get_shared_chat(token)
+
+    if not chat_id:
+
+        return {
+            "error": "Chat not found"
+        }
+
+    return get_messages(chat_id)

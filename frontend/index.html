@@ -43,12 +43,25 @@
             <button id="theme-btn" onclick="toggleTheme()">
                 🌙 Dark Mode
             </button>
-
         </div>
+        <div class="chat-controls">
+
+        <button onclick="exportChat()">
+    📄 Export TXT
+</button>
+
+<button onclick="exportPDF()">
+    📕 Export PDF
+</button>
+
+<button onclick="shareChat()">
+    🔗 Share Chat
+</button> 
 
         <button onclick="clearChat()">
             Clear Chat
         </button>
+        </div>
 
         <div id="chat-box"></div>
 
@@ -66,6 +79,7 @@
 <input
     type="file"
     id="file-input"
+    accept=".pdf,.docx,.txt,.png,.jpg,.jpeg"
     hidden
 >
 

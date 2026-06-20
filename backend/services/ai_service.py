@@ -7,10 +7,45 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 def get_ai_response(messages):
+
     response = client.chat.completions.create(
         model="openai/gpt-4o-mini",
         messages=messages
     )
+
     print("\nFULL RESPONSE:")
     print(response)
+
+    return response.choices[0].message.content
+
+
+def get_ai_vision_response(
+    prompt,
+    base64_image
+):
+
+    response = client.chat.completions.create(
+
+        model="openai/gpt-4o-mini",
+
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url":
+                            f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ]
+    )
+
     return response.choices[0].message.content

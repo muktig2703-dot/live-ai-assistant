@@ -685,3 +685,88 @@ function filterChats() {
         }
     });
 }
+
+async function exportChat() {
+
+    if (!currentChatId) {
+
+        alert(
+            "Select a chat first."
+        );
+
+        return;
+    }
+
+    const response =
+        await fetch(
+            `http://127.0.0.1:8000/chat/${currentChatId}/export`
+        );
+
+    const text =
+        await response.text();
+
+    const blob =
+        new Blob(
+            [text],
+            { type: "text/plain" }
+        );
+
+    const link =
+        document.createElement("a");
+
+    link.href =
+        URL.createObjectURL(blob);
+
+    link.download =
+    `${currentChatTitle}.txt`;
+
+    link.click();
+}
+
+async function exportPDF() {
+
+    if (!currentChatId) {
+
+        alert(
+            "Select a chat first."
+        );
+
+        return;
+    }
+
+    window.open(
+        `http://127.0.0.1:8000/chat/${currentChatId}/export/pdf`,
+        "_blank"
+    );
+}
+
+async function shareChat() {
+
+    if (!currentChatId) {
+
+        alert(
+            "Select a chat first."
+        );
+
+        return;
+    }
+
+    const response =
+        await fetch(
+            `http://127.0.0.1:8000/chat/${currentChatId}/share`,
+            {
+                method: "POST"
+            }
+        );
+
+    const data =
+        await response.json();
+
+    navigator.clipboard.writeText(
+        data.share_url
+    );
+
+    alert(
+        "Share link copied!"
+    );
+}

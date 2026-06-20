@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Shared Chat</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            Shared Conversation
+        </h1>
+
+        <div id="chat-box"></div>
+
+    </div>
+
+    <script>
+
+        async function loadSharedChat() {
+
+            const params =
+                new URLSearchParams(
+                    window.location.search
+                );
+
+            const token =
+                params.get("token");
+
+            const response =
+                await fetch(
+                    `http://127.0.0.1:8000/shared/${token}`
+                );
+
+            const messages =
+                await response.json();
+
+            const chatBox =
+                document.getElementById(
+                    "chat-box"
+                );
+
+            chatBox.innerHTML = "";
+
+            messages.forEach(message => {
+
+                const cls =
+                    message.role === "user"
+                    ? "user-message"
+                    : "ai-message";
+
+                chatBox.innerHTML += `
+                    <div class="message ${cls}">
+
+                        <div class="message-content">
+
+                            <div class="bubble">
+                                ${message.content}
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            });
+        }
+
+        loadSharedChat();
+
+    </script>
+
+</body>
+
+</html>
