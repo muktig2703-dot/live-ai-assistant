@@ -549,11 +549,6 @@ pre {
 
 .copy-btn {
 
-    position: absolute;
-
-    top: 8px;
-    right: 8px;
-
     border: none;
 
     padding: 5px 10px;
@@ -567,4 +562,45 @@ pre {
     background: #333;
 
     color: white;
+}
+
+.code-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 8px 12px;
+
+    background: #1e1e1e;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    border-radius: 8px 8px 0 0;
+}
+
+.regen-btn {
+
+    margin-top: 8px;
+
+    border: none;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    opacity: 0.7;
+}
+
+.regen-btn:hover {
+
+    opacity: 1;
 }

@@ -1,6 +1,7 @@
 let currentChatId = null;
 let voiceEnabled = true;
 let currentChatTitle = "";
+let controller = null;
 
 function getCurrentTime() {
 
@@ -163,7 +164,6 @@ async function sendMessage() {
 
     const title =
         message.substring(0, 30);
-
     await fetch(
         `http://127.0.0.1:8000/chat/${currentChatId}/rename`,
         {
@@ -243,6 +243,10 @@ async function sendMessage() {
     document.getElementById(
         "model-select"
     ).value;
+    document.getElementById(
+    "stop-btn"
+).style.display = "inline-block";
+        controller = new AbortController();
         const response = await fetch(
             "http://127.0.0.1:8000/chat",
             {
@@ -250,6 +254,8 @@ async function sendMessage() {
                 headers: {
                     "Content-Type": "application/json"
                 },
+                signal: controller.signal,
+
                 body: JSON.stringify({
     chat_id: currentChatId,
     message: message,
@@ -279,6 +285,17 @@ chatBox.innerHTML += `
             <div class="timestamp">
                 ${getCurrentTime()}
             </div>
+
+<div class="message-actions">
+
+    <button
+        class="regen-btn"
+        onclick="regenerateResponse(this)"
+    >
+        🔄 Regenerate
+    </button>
+
+</div>
 
         </div>
 
@@ -332,6 +349,61 @@ while (true) {
         chatBox.scrollHeight;
 }
 
+document.getElementById(
+    "stop-btn"
+).style.display = "none";
+
+document
+    .querySelectorAll("pre")
+    .forEach((pre) => {
+
+        if (
+            !pre.querySelector(".code-header")
+        ) {
+
+            const code =
+                pre.querySelector("code");
+
+            let language =
+                "Code";
+
+            if (
+                code &&
+                code.className.includes(
+                    "language-"
+                )
+            ) {
+
+                language =
+                    code.className
+                        .replace(
+                            "language-",
+                            ""
+                        )
+                        .toUpperCase();
+            }
+
+            const header =
+                document.createElement("div");
+
+            header.className =
+                "code-header";
+
+            header.innerHTML = `
+                <span>${language}</span>
+
+                <button
+                    class="copy-btn"
+                    onclick="copyCode(this)"
+                >
+                    Copy
+                </button>
+            `;
+
+            pre.prepend(header);
+        }
+
+    });
 speak(fullResponse);
 
 
@@ -339,30 +411,65 @@ speak(fullResponse);
 
     catch (error) {
 
-        console.error(error);
+    document.getElementById(
+        "stop-btn"
+    ).style.display = "none";
 
-        document.getElementById(loadingId)?.remove();
+    if (error.name === "AbortError") {
 
-        chatBox.innerHTML += `
-            <div class="message ai-message">
+        console.log(
+            "Generation stopped by user"
+        );
 
-                <div class="avatar ai-avatar">
-                    🤖
-                </div>
+        return;
+    }
 
-                <div class="message-content">
+    console.error(error);
 
-                    <div class="bubble">
-                        Error connecting to AI server.
-                    </div>
+    document.getElementById(loadingId)?.remove();
 
+    chatBox.innerHTML += `
+        <div class="message ai-message">
+
+            <div class="avatar ai-avatar">
+                🤖
+            </div>
+
+            <div class="message-content">
+
+                <div class="bubble">
+                    Error connecting to AI server.
                 </div>
 
             </div>
-        `;
-    }
+
+        </div>
+    `;
+}
 }
 
+async function regenerateResponse(button) {
+
+    const userMessages =
+        document.querySelectorAll(
+            ".user-message .bubble"
+        );
+
+    if (
+        userMessages.length === 0
+    ) return;
+
+    const lastUserMessage =
+        userMessages[
+            userMessages.length - 1
+        ].innerText;
+
+    document.getElementById(
+        "message"
+    ).value = lastUserMessage;
+
+    sendMessage();
+}
 
 function toggleTheme() {
 
@@ -1044,8 +1151,12 @@ xhr.send(formData);
 
 function copyCode(button) {
 
+    const pre =
+        button.closest("pre");
+
     const code =
-        button.nextElementSibling.innerText;
+        pre.querySelector("code")
+           .innerText;
 
     navigator.clipboard.writeText(code);
 
@@ -1056,4 +1167,32 @@ function copyCode(button) {
         button.innerText = "Copy";
 
     }, 2000);
+}
+
+function copyResponse(button) {
+
+    const text =
+        button.dataset.content;
+
+    navigator.clipboard
+        .writeText(text);
+
+    button.innerText =
+        "✅ Copied";
+
+    setTimeout(() => {
+
+        button.innerText =
+            "📋 Copy";
+
+    }, 2000);
+}
+
+function stopGeneration() {
+
+    if (controller) {
+
+        controller.abort();
+
+    }
 }
