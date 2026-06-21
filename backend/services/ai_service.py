@@ -1,5 +1,6 @@
 from openai import OpenAI
 from dotenv import load_dotenv
+from fastapi.responses import StreamingResponse
 import os
 load_dotenv()
 client = OpenAI(
@@ -23,7 +24,24 @@ def get_ai_response(messages, model):
         print(e)
 
         return f"Model Error: {str(e)}"
+    
+def stream_ai_response(messages, model):
+    print("STREAM MODEL =", model)
+    stream = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        max_tokens=1000,
+        stream=True
+    )
 
+    for chunk in stream:
+
+        if (
+            chunk.choices
+            and chunk.choices[0].delta.content
+        ):
+
+            yield chunk.choices[0].delta.content
 
 def get_ai_vision_response(
     prompt,

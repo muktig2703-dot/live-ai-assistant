@@ -9,7 +9,7 @@ from fastapi import Form
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
-from services.ai_service import (get_ai_response, get_ai_vision_response)
+from services.ai_service import (get_ai_response, get_ai_vision_response,stream_ai_response)
 from services.document_service import extract_text
 from tools.search_tool import search_web
 from agents.search_agent import needs_search
@@ -17,6 +17,7 @@ from fastapi.responses import FileResponse
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from services.image_service import encode_image
+from fastapi.responses import StreamingResponse
 
 from database.db import (
     init_db,
@@ -201,6 +202,8 @@ def chat(request: ChatRequest):
     chat_id = request.chat_id
     user_message = request.message
     selected_model = request.model
+    print("REQUEST MODEL =", request.model)
+    print("SELECTED MODEL =", selected_model)
     document = get_document(chat_id)
 
     document_name = ""
@@ -279,20 +282,33 @@ Document Content:
 
     if is_image:
 
-       base64_image = encode_image(
+        base64_image = encode_image(
         document_path
     )
 
-       answer = get_ai_vision_response(
+        answer = get_ai_vision_response(
         user_message,
         base64_image
     )
 
+        save_message(
+        chat_id,
+        "assistant",
+        answer
+    )
+  
+        return {
+        "answer": answer
+    }
+
     else:
 
-       answer = get_ai_response(
-        messages,
-        selected_model
+        return StreamingResponse(
+            stream_ai_response(
+            messages,
+            selected_model
+        ),
+        media_type="text/plain"
     )
 
     save_message(
