@@ -25,8 +25,18 @@ def get_ai_response(messages, model):
 
         return f"Model Error: {str(e)}"
     
-def stream_ai_response(messages, model):
+from database.db import save_message
+
+def stream_ai_response(
+    messages,
+    model,
+    chat_id
+):
+
     print("STREAM MODEL =", model)
+
+    full_response = ""
+
     stream = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -41,7 +51,17 @@ def stream_ai_response(messages, model):
             and chunk.choices[0].delta.content
         ):
 
-            yield chunk.choices[0].delta.content
+            content = chunk.choices[0].delta.content
+
+            full_response += content
+
+            yield content
+
+    save_message(
+        chat_id,
+        "assistant",
+        full_response
+    )
 
 def get_ai_vision_response(
     prompt,

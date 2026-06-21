@@ -542,3 +542,29 @@ button:active {
 
     background: #333;
 }
+
+pre {
+    position: relative;
+}
+
+.copy-btn {
+
+    position: absolute;
+
+    top: 8px;
+    right: 8px;
+
+    border: none;
+
+    padding: 5px 10px;
+
+    cursor: pointer;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+
+    background: #333;
+
+    color: white;
+}

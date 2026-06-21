@@ -64,8 +64,8 @@ async function loadHistory() {
                     <div class="message-content">
 
                         <div class="bubble">
-                            ${message.content}
-                        </div>
+    ${marked.parse(message.content)}
+</div>
 
                         <div class="timestamp">
                             ${getCurrentTime()}
@@ -77,7 +77,38 @@ async function loadHistory() {
             `;
         }
     });
+document
+    .querySelectorAll("pre")
+    .forEach((pre) => {
 
+        if (
+            !pre.querySelector(".copy-btn")
+        ) {
+
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "copy-btn";
+
+            button.innerText =
+                "Copy";
+
+            button.onclick = () =>
+                copyCode(button);
+
+            pre.prepend(button);
+        }
+
+    });
+
+document
+    .querySelectorAll("pre code")
+    .forEach((block) => {
+
+        hljs.highlightElement(block);
+
+    });
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
@@ -226,44 +257,83 @@ async function sendMessage() {
 })
             }
         );
+    document.getElementById(loadingId)?.remove();
 
-        const data = await response.json();
+const aiMessageId =
+    "ai-" + Date.now();
 
-        document.getElementById(loadingId)?.remove();
+chatBox.innerHTML += `
+    <div class="message ai-message">
 
-        chatBox.innerHTML += `
-            <div class="message ai-message">
+        <div class="avatar ai-avatar">
+            🤖
+        </div>
 
-                <div class="avatar ai-avatar">
-                    🤖
-                </div>
+        <div class="message-content">
 
-                <div class="message-content">
+            <div
+                class="bubble"
+                id="${aiMessageId}"
+            ></div>
 
-                    <div class="bubble">
-    ${marked.parse(data.answer)}
-</div>
-
-                    <div class="timestamp">
-                        ${getCurrentTime()}
-                    </div>
-
-                </div>
-
+            <div class="timestamp">
+                ${getCurrentTime()}
             </div>
-        `;
 
-        document
-    .querySelectorAll("pre code")
-    .forEach((block) => {
+        </div>
 
-        hljs.highlightElement(block);
+    </div>
+`;
 
-    });
+const aiBubble =
+    document.getElementById(
+        aiMessageId
+    );
 
-        chatBox.scrollTop = chatBox.scrollHeight;
+const reader =
+    response.body.getReader();
 
-        speak(data.answer);
+const decoder =
+    new TextDecoder();
+
+let fullResponse = "";
+
+while (true) {
+
+    const {
+        done,
+        value
+    } = await reader.read();
+
+    if (done) break;
+
+    const chunk =
+    decoder.decode(
+        value,
+        { stream: true }
+    );
+
+    fullResponse += chunk;
+
+    aiBubble.innerHTML =
+        marked.parse(fullResponse);
+
+    document
+        .querySelectorAll("pre code")
+        .forEach((block) => {
+
+            hljs.highlightElement(
+                block
+            );
+
+        });
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+}
+
+speak(fullResponse);
+
 
     }
 
@@ -609,6 +679,31 @@ async function openChat(chatId, chatTitle) {
         }
     });
 document
+    .querySelectorAll("pre")
+    .forEach((pre) => {
+
+        if (
+            !pre.querySelector(".copy-btn")
+        ) {
+
+            const button =
+                document.createElement("button");
+
+            button.className =
+                "copy-btn";
+
+            button.innerText =
+                "Copy";
+
+            button.onclick = () =>
+                copyCode(button);
+
+            pre.prepend(button);
+        }
+
+    });
+
+document
     .querySelectorAll("pre code")
     .forEach((block) => {
 
@@ -946,3 +1041,19 @@ xhr.onload = () => {
 xhr.send(formData);
  }
 );
+
+function copyCode(button) {
+
+    const code =
+        button.nextElementSibling.innerText;
+
+    navigator.clipboard.writeText(code);
+
+    button.innerText = "Copied!";
+
+    setTimeout(() => {
+
+        button.innerText = "Copy";
+
+    }, 2000);
+}

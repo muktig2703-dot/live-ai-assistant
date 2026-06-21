@@ -306,7 +306,8 @@ Document Content:
         return StreamingResponse(
             stream_ai_response(
             messages,
-            selected_model
+            selected_model,
+            chat_id
         ),
         media_type="text/plain"
     )
