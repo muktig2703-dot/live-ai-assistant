@@ -3,6 +3,9 @@ import shutil
 from jose import jwt
 from jose import JWTError
 from datetime import datetime, timedelta
+from fastapi import Header
+from fastapi import HTTPException
+from fastapi import Depends
 from fastapi import (
     FastAPI,
     UploadFile,
@@ -70,6 +73,43 @@ def create_access_token(data):
 
     return encoded_jwt
 
+def get_current_user(
+    authorization: str = Header(None)
+):
+
+    if not authorization:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated"
+        )
+
+    token = authorization.replace(
+        "Bearer ",
+        ""
+    )
+
+    try:
+
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        user_id = payload.get(
+            "user_id"
+        )
+
+        return user_id
+
+    except JWTError:
+
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+    
 app = FastAPI()
 
 app.add_middleware(
@@ -105,7 +145,6 @@ class RenameRequest(BaseModel):
     title: str
 
 class NewChatRequest(BaseModel):
-
     user_id: int
 
 
@@ -125,11 +164,15 @@ def home():
 # ----------------------------
 @app.post("/chat/new")
 def new_chat(
-    request: NewChatRequest
+
+    current_user = Depends(
+        get_current_user
+    )
+
 ):
 
     chat_id = create_chat(
-        request.user_id
+        current_user
     )
 
     return {
@@ -137,16 +180,28 @@ def new_chat(
     }
 
 
-@app.get("/chats/{user_id}")
-def chats(user_id: int):
+@app.get("/chats")
+def chats(
+
+    current_user = Depends(
+        get_current_user
+    )
+
+):
 
     return get_chats(
-        user_id
+        current_user
     )
 
 
 @app.put("/chat/{chat_id}/rename")
-def rename(chat_id: int, request: RenameRequest):
+def rename(
+    chat_id: int,
+    request: RenameRequest,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     rename_chat(chat_id, request.title)
 
@@ -155,7 +210,12 @@ def rename(chat_id: int, request: RenameRequest):
     }
 
 @app.put("/chat/{chat_id}/pin")
-def pin_chat(chat_id: int):
+def pin_chat(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     toggle_pin(chat_id)
 
@@ -164,7 +224,12 @@ def pin_chat(chat_id: int):
     }
 
 @app.put("/chat/{chat_id}/archive")
-def archive_chat(chat_id: int):
+def archive_chat(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     toggle_archive(chat_id)
 
@@ -174,7 +239,12 @@ def archive_chat(chat_id: int):
 
 
 @app.delete("/chat/{chat_id}")
-def remove_chat(chat_id: int):
+def remove_chat(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     delete_chat(chat_id)
 
@@ -184,7 +254,10 @@ def remove_chat(chat_id: int):
 
 
 @app.get("/chat/{chat_id}/history")
-def history(chat_id: int):
+def history(
+    chat_id: int,
+    user_id: int = Depends(get_current_user)
+):
 
     return get_messages(chat_id)
 
@@ -196,7 +269,10 @@ def history(chat_id: int):
 @app.post("/upload")
 async def upload_file(
     chat_id: int = Form(...),
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    current_user = Depends(
+        get_current_user
+    )
 ):
 
     os.makedirs(
@@ -249,7 +325,10 @@ async def upload_file(
 # ----------------------------
 
 @app.post("/chat")
-def chat(request: ChatRequest):
+def chat(
+    request: ChatRequest,
+    user_id: int = Depends(get_current_user)
+):
 
     chat_id = request.chat_id
     user_message = request.message
@@ -418,7 +497,12 @@ Document Content:
 #EXPORT CHAT
 #-----------------------------------------------
 @app.get("/chat/{chat_id}/export")
-def export_chat(chat_id: int):
+def export_chat(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     messages = get_messages(chat_id)
 
@@ -434,7 +518,12 @@ def export_chat(chat_id: int):
     return PlainTextResponse(content)
 
 @app.get("/chat/{chat_id}/export/pdf")
-def export_chat_pdf(chat_id: int):
+def export_chat_pdf(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     messages = get_messages(chat_id)
 
@@ -490,7 +579,12 @@ def export_chat_pdf(chat_id: int):
     )
 
 @app.post("/chat/{chat_id}/share")
-def share_chat(chat_id: int):
+def share_chat(
+    chat_id: int,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
     token = create_share_link(chat_id)
 
@@ -513,9 +607,16 @@ def shared_chat(token: str):
     return get_messages(chat_id)
 
 @app.get("/search")
-def search_chats(q: str):
+def search_chats(
+    q: str,
+    current_user = Depends(
+        get_current_user
+    )
+):
 
-    chats = get_chats()
+    chats = get_chats(
+        current_user
+    )
 
     results = []
 

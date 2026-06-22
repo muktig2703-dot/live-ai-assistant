@@ -129,9 +129,9 @@ async function clearChat() {
 
 async function createNewChat() {
 
-    const user =
-    JSON.parse(
-        localStorage.getItem("user")
+    const token =
+    localStorage.getItem(
+        "token"
     );
 
 const response = await fetch(
@@ -140,13 +140,9 @@ const response = await fetch(
         method: "POST",
 
         headers: {
-            "Content-Type":
-                "application/json"
-        },
-
-        body: JSON.stringify({
-            user_id: user.id
-        })
+            Authorization:
+                `Bearer ${token}`
+        }
     }
 );
 
@@ -293,13 +289,20 @@ async function sendMessage() {
     "stop-btn"
 ).style.display = "inline-block";
         controller = new AbortController();
-        const response = await fetch(
-            "http://127.0.0.1:8000/chat",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+        const token =
+    localStorage.getItem("token");
+
+const response = await fetch(
+    "http://127.0.0.1:8000/chat",
+    {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/json",
+
+            Authorization:
+                `Bearer ${token}`
+        },
                 signal: controller.signal,
 
                 body: JSON.stringify({
@@ -676,13 +679,19 @@ function toggleVoice() {
 
 async function loadChats() {
 
-    const user =
-    JSON.parse(
-        localStorage.getItem("user")
+    const token =
+    localStorage.getItem(
+        "token"
     );
 
 const response = await fetch(
-    `http://127.0.0.1:8000/chats/${user.id}`
+    "http://127.0.0.1:8000/chats",
+    {
+        headers: {
+            Authorization:
+                `Bearer ${token}`
+        }
+    }
 );
 
     const chats = await response.json();
@@ -787,6 +796,9 @@ function renderChat(chat) {
 
 async function renameChat(chatId) {
 
+    const token =
+        localStorage.getItem("token");
+
     const newTitle = prompt(
         "Enter new chat name:"
     );
@@ -797,9 +809,13 @@ async function renameChat(chatId) {
         `http://127.0.0.1:8000/chat/${chatId}/rename`,
         {
             method: "PUT",
+
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                Authorization:
+                    `Bearer ${token}`
             },
+
             body: JSON.stringify({
                 title: newTitle
             })
@@ -811,6 +827,11 @@ async function renameChat(chatId) {
 
 async function deleteChat(chatId) {
 
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
     const confirmDelete = confirm(
         "Delete this chat?"
     );
@@ -820,7 +841,12 @@ async function deleteChat(chatId) {
     await fetch(
         `http://127.0.0.1:8000/chat/${chatId}`,
         {
-            method: "DELETE"
+            method: "DELETE",
+
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
         }
     );
 
@@ -833,10 +859,20 @@ async function deleteChat(chatId) {
 
 async function pinChat(chatId) {
 
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
     await fetch(
         `http://127.0.0.1:8000/chat/${chatId}/pin`,
         {
-            method: "PUT"
+            method: "PUT",
+
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
         }
     );
 
@@ -845,10 +881,20 @@ async function pinChat(chatId) {
 
 async function archiveChat(chatId) {
 
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
     await fetch(
         `http://127.0.0.1:8000/chat/${chatId}/archive`,
         {
-            method: "PUT"
+            method: "PUT",
+
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
         }
     );
 
@@ -862,9 +908,18 @@ async function openChat(chatId, chatTitle) {
     loadChats();
     currentChatTitle = chatTitle;
 
-    const response = await fetch(
-        `http://127.0.0.1:8000/chat/${chatId}/history`
-    );
+    const token =
+    localStorage.getItem("token");
+
+const response = await fetch(
+    `http://127.0.0.1:8000/chat/${chatId}/history`,
+    {
+        headers: {
+            Authorization:
+                `Bearer ${token}`
+        }
+    }
+);
 
     const messages = await response.json();
 
@@ -1095,10 +1150,19 @@ async function exportChat() {
         return;
     }
 
-    const response =
-        await fetch(
-            `http://127.0.0.1:8000/chat/${currentChatId}/export`
-        );
+    const token =
+    localStorage.getItem("token");
+
+const response =
+    await fetch(
+        `http://127.0.0.1:8000/chat/${currentChatId}/export`,
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
+        }
+    );
 
     const text =
         await response.text();
@@ -1132,10 +1196,37 @@ async function exportPDF() {
         return;
     }
 
-    window.open(
-        `http://127.0.0.1:8000/chat/${currentChatId}/export/pdf`,
-        "_blank"
-    );
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
+    const response =
+        await fetch(
+            `http://127.0.0.1:8000/chat/${currentChatId}/export/pdf`,
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            }
+        );
+
+    const blob =
+        await response.blob();
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        `${currentChatTitle}.pdf`;
+
+    link.click();
 }
 
 async function shareChat() {
@@ -1149,13 +1240,21 @@ async function shareChat() {
         return;
     }
 
-    const response =
-        await fetch(
-            `http://127.0.0.1:8000/chat/${currentChatId}/share`,
-            {
-                method: "POST"
+    const token =
+    localStorage.getItem("token");
+
+const response =
+    await fetch(
+        `http://127.0.0.1:8000/chat/${currentChatId}/share`,
+        {
+            method: "POST",
+
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
             }
-        );
+        }
+    );
 
     const data =
         await response.json();
@@ -1290,7 +1389,13 @@ xhr.onload = () => {
         `Uploaded: ${data.filename}`
     );
 };
+const token =
+    localStorage.getItem("token");
 
+xhr.setRequestHeader(
+    "Authorization",
+    `Bearer ${token}`
+);
 xhr.send(formData);
  }
 );}
