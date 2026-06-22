@@ -2,6 +2,7 @@ let currentChatId = null;
 let voiceEnabled = true;
 let currentChatTitle = "";
 let controller = null;
+let editingMessage = null;
 
 function getCurrentTime() {
 
@@ -156,6 +157,24 @@ async function sendMessage() {
     const message = input.value.trim();
 
     if (!message) return;
+    if (editingMessage) {
+
+    const nextMessage =
+        editingMessage.nextElementSibling;
+
+    if (
+        nextMessage &&
+        nextMessage.classList.contains(
+            "ai-message"
+        )
+    ) {
+        nextMessage.remove();
+    }
+
+    editingMessage.remove();
+
+    editingMessage = null;
+}
 
     if (
     currentChatTitle === "New Chat" &&
@@ -191,26 +210,39 @@ async function sendMessage() {
 }
 
     chatBox.innerHTML += `
-        <div class="message user-message">
+    <div class="message user-message">
 
-            <div class="message-content">
+        <div class="message-content">
 
-                <div class="bubble">
-                    ${message}
-                </div>
-
-                <div class="timestamp">
-                    ${getCurrentTime()}
-                </div>
-
+            <div
+                class="bubble user-bubble"
+            >
+                ${message}
             </div>
 
-            <div class="avatar user-avatar">
-                👤
+            <div class="timestamp">
+                ${getCurrentTime()}
+            </div>
+
+            <div class="message-actions">
+
+                <button
+                    class="edit-btn"
+                    onclick="editMessage(this)"
+                >
+                    ✏️
+                </button>
+
             </div>
 
         </div>
-    `;
+
+        <div class="avatar user-avatar">
+            👤
+        </div>
+
+    </div>
+`;
 
     input.value = "";
 
@@ -471,6 +503,28 @@ async function regenerateResponse(button) {
     sendMessage();
 }
 
+function editMessage(button) {
+
+    editingMessage =
+        button.closest(
+            ".user-message"
+        );
+
+    const bubble =
+        editingMessage.querySelector(
+            ".user-bubble"
+        );
+
+    document.getElementById(
+        "message"
+    ).value =
+        bubble.innerText;
+
+    document.getElementById(
+        "message"
+    ).focus();
+}
+
 function toggleTheme() {
 
     document.body.classList.toggle("dark-mode");
@@ -513,13 +567,37 @@ function speak(text) {
 
     if (!text) return;
 
-    const speech = new SpeechSynthesisUtterance(text);
+    const speech =
+        new SpeechSynthesisUtterance(text);
 
     speech.rate = 1;
     speech.pitch = 1;
     speech.volume = 1;
 
+    const voices =
+        speechSynthesis.getVoices();
+
+    if (/[\u0900-\u097F]/.test(text)) {
+
+        speech.lang = "hi-IN";
+
+        const hindiVoice =
+            voices.find(v =>
+                v.lang.includes("hi")
+            );
+
+        if (hindiVoice) {
+            speech.voice = hindiVoice;
+        }
+    }
+
+    else {
+
+        speech.lang = "en-US";
+    }
+
     window.speechSynthesis.cancel();
+
     window.speechSynthesis.speak(speech);
 }
 
@@ -1196,3 +1274,10 @@ function stopGeneration() {
 
     }
 }
+
+speechSynthesis.onvoiceschanged =
+    () => {
+
+        speechSynthesis.getVoices();
+
+    };

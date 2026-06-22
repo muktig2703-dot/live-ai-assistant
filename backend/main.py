@@ -253,9 +253,9 @@ Content: {result['body']}
         print("NO SEARCH NEEDED")
 
     messages = [
-    {
-        "role": "system",
-        "content": f"""
+{
+    "role": "system",
+    "content": f"""
 You are a helpful AI assistant.
 
 Use:
@@ -263,6 +263,17 @@ Use:
 1. Conversation history
 2. Search results
 3. Uploaded document (if available)
+
+LANGUAGE RULES:
+
+- Always detect the language of the user's latest message.
+- Reply in the same language.
+- If the user writes in Hindi, reply in Hindi.
+- If the user writes in English, reply in English.
+- If the user writes in Tamil, reply in Tamil.
+- If the user writes in Telugu, reply in Telugu.
+- If the user mixes languages (Hinglish), reply naturally in the same mixed style.
+- Do not translate unless the user explicitly asks.
 
 Search Results:
 {search_context}
@@ -273,8 +284,8 @@ Uploaded File:
 Document Content:
 {document_content[:12000]}
 """
-        }
-    ]
+}
+]
 
     messages.extend(
         get_messages(chat_id)
