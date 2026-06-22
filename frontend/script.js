@@ -577,7 +577,30 @@ function speak(text) {
     const voices =
         speechSynthesis.getVoices();
 
-    if (/[\u0900-\u097F]/.test(text)) {
+        const lower =
+    text.toLowerCase();
+
+    if (
+
+    /[\u0900-\u097F]/.test(text)
+
+    ||
+
+    lower.includes("namaste")
+
+    ||
+
+    lower.includes("mera")
+
+    ||
+
+    lower.includes("aap")
+
+    ||
+
+    lower.includes("hai")
+
+) {
 
         speech.lang = "hi-IN";
 

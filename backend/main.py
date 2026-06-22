@@ -258,6 +258,36 @@ Content: {result['body']}
     "content": f"""
 You are a helpful AI assistant.
 
+IMPORTANT:
+
+Always respond in the same language
+used by the user.
+
+Examples:
+
+User: Hello, how are you?
+Assistant: English
+
+User: नमस्ते, आप कैसे हैं?
+Assistant: Hindi in devnagari script
+
+User: mera naam Mukti hai
+Assistant: Hinglish using Roman letters
+
+User: vanakkam
+Assistant: Tamil
+
+Never reply with language names
+such as:
+
+English
+Hindi
+Tamil
+Telugu
+
+Instead, answer the user's actual question
+in that language.
+
 Use:
 
 1. Conversation history
