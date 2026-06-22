@@ -1,5 +1,8 @@
 import os
 import shutil
+from jose import jwt
+from jose import JWTError
+from datetime import datetime, timedelta
 from fastapi import (
     FastAPI,
     UploadFile,
@@ -36,6 +39,36 @@ from database.db import (
     create_user,
     get_user_by_email
 )
+
+SECRET_KEY = "my_super_secret_key"
+
+ALGORITHM = "HS256"
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+def create_access_token(data):
+
+    to_encode = data.copy()
+
+    expire = (
+        datetime.utcnow()
+        + timedelta(
+            minutes=
+            ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+    )
+
+    to_encode.update(
+        {"exp": expire}
+    )
+
+    encoded_jwt = jwt.encode(
+        to_encode,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+    return encoded_jwt
 
 app = FastAPI()
 
@@ -599,20 +632,12 @@ def login(
             "Invalid email or password"
         }
 
-    return {
-
-        "message":
-        "Login successful",
-
-        "user": {
-
-            "id":
-            user["id"],
-
-            "name":
-            user["name"],
-
-            "email":
-            user["email"]
-        }
+    token = create_access_token(
+    {
+        "user_id": user["id"]
     }
+)
+
+    return {
+    "access_token": token
+}

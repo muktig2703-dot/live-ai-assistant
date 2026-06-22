@@ -1350,15 +1350,15 @@ speechSynthesis.onvoiceschanged =
 
     };
 
-const user =
-    localStorage.getItem("user");
+const token =
+    localStorage.getItem("token");
 
 const currentPage =
     window.location.pathname;
 
 if (
 
-    !user &&
+    !token &&
 
     !currentPage.includes(
         "login.html"
@@ -1452,27 +1452,26 @@ async function login() {
     const data =
         await response.json();
 
-    if (data.user) {
+    if (data.access_token) {
 
-        localStorage.setItem(
-            "user",
-            JSON.stringify(data.user)
-        );
+    localStorage.setItem(
+        "token",
+        data.access_token
+    );
 
-        window.location.href =
-            "index.html";
-    }
-
-    else {
-
-        alert(data.error);
-    }
+    window.location.href =
+        "index.html";
 }
+
+else {
+
+    alert(data.error);
+} }
 
 function logout() {
 
     localStorage.removeItem(
-        "user"
+        "token"
     );
 
     window.location.href =
