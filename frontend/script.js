@@ -625,17 +625,25 @@ function speak(text) {
 }
 
 
-document
-    .getElementById("message")
-    .addEventListener("keypress", function(event) {
+const messageInput =
+    document.getElementById(
+        "message"
+    );
 
-        if (event.key === "Enter") {
-            sendMessage();
+if (messageInput) {
+
+    messageInput.addEventListener(
+        "keypress",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                sendMessage();
+
+            }
         }
-    });
-
-
-
+    );
+}
 
 function toggleVoice() {
 
@@ -922,7 +930,15 @@ document
         chatBox.scrollHeight;
 }
 
-loadChats();
+if (
+    document.getElementById(
+        "chat-list"
+    )
+) {
+
+    loadChats();
+
+}
 
 function selectFile() {
 
@@ -931,12 +947,18 @@ function selectFile() {
         .click();
 }
 
-document
-    .getElementById("file-input")
-    .addEventListener(
+const fileInput =
+    document.getElementById(
+        "file-input"
+    );
+
+if (fileInput) {
+
+    fileInput.addEventListener(
         "change",
         uploadFile
     );
+}
 
     async function uploadFile(event) {
 
@@ -1129,19 +1151,23 @@ async function shareChat() {
 }
 
 const dropZone =
-    document.getElementById("drop-zone");
+    document.getElementById(
+        "drop-zone"
+    );
 
-document.addEventListener(
-    "dragover",
-    (event) => {
+if (dropZone) {
 
-        event.preventDefault();
+    document.addEventListener(
+        "dragover",
+        (event) => {
 
-        dropZone.classList.add(
-            "active"
-        );
-    }
-);
+            event.preventDefault();
+
+            dropZone.classList.add(
+                "active"
+            );
+        }
+    );
 
 document.addEventListener(
     "dragleave",
@@ -1248,7 +1274,7 @@ xhr.onload = () => {
 
 xhr.send(formData);
  }
-);
+);}
 
 function copyCode(button) {
 
@@ -1304,3 +1330,133 @@ speechSynthesis.onvoiceschanged =
         speechSynthesis.getVoices();
 
     };
+
+const user =
+    localStorage.getItem("user");
+
+const currentPage =
+    window.location.pathname;
+
+if (
+
+    !user &&
+
+    !currentPage.includes(
+        "login.html"
+    ) &&
+
+    !currentPage.includes(
+        "register.html"
+    )
+
+) {
+
+    window.location.href =
+        "login.html";
+}
+
+async function register() {
+
+    const name =
+        document.getElementById("name").value;
+
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/register",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                name: name,
+
+                email: email,
+
+                password: password
+
+            })
+        }
+    );
+
+    const data =
+        await response.json();
+
+    alert(
+        data.message || data.error
+    );
+
+    if (data.message) {
+
+        window.location.href =
+            "login.html";
+    }
+}
+
+async function login() {
+
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/login",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                email: email,
+
+                password: password
+
+            })
+        }
+    );
+
+    const data =
+        await response.json();
+
+    if (data.user) {
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
+        );
+
+        window.location.href =
+            "index.html";
+    }
+
+    else {
+
+        alert(data.error);
+    }
+}
+
+function logout() {
+
+    localStorage.removeItem(
+        "user"
+    );
+
+    window.location.href =
+        "login.html";
+}
+

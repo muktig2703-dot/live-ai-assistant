@@ -18,7 +18,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from services.image_service import encode_image
 from fastapi.responses import StreamingResponse
-
+from passlib.context import CryptContext
 from database.db import (
     init_db,
     create_chat,
@@ -32,7 +32,9 @@ from database.db import (
     save_document,
     get_document,
     create_share_link,
-    get_shared_chat
+    get_shared_chat,
+    create_user,
+    get_user_by_email
 )
 
 app = FastAPI()
@@ -57,6 +59,14 @@ class ChatRequest(BaseModel):
     message: str
     model: str
 
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 class RenameRequest(BaseModel):
     title: str
@@ -501,3 +511,99 @@ def search_chats(q: str):
             })
 
     return results
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+def hash_password(password):
+
+    return pwd_context.hash(password)
+
+def verify_password(
+    plain_password,
+    hashed_password
+):
+
+    return pwd_context.verify(
+        plain_password,
+        hashed_password
+    )
+
+@app.post("/register")
+def register(
+    request: RegisterRequest
+):
+
+    existing_user = get_user_by_email(
+        request.email
+    )
+
+    if existing_user:
+
+        return {
+            "error":
+            "Email already exists"
+        }
+
+    password_hash = hash_password(
+        request.password
+    )
+
+    create_user(
+        request.name,
+        request.email,
+        password_hash
+    )
+
+    return {
+        "message":
+        "User registered successfully"
+    }
+
+@app.post("/login")
+def login(
+    request: LoginRequest
+):
+
+    user = get_user_by_email(
+        request.email
+    )
+
+    if not user:
+
+        return {
+            "error":
+            "Invalid email or password"
+        }
+
+    valid_password = verify_password(
+        request.password,
+        user["password_hash"]
+    )
+
+    if not valid_password:
+
+        return {
+            "error":
+            "Invalid email or password"
+        }
+
+    return {
+
+        "message":
+        "Login successful",
+
+        "user": {
+
+            "id":
+            user["id"],
+
+            "name":
+            user["name"],
+
+            "email":
+            user["email"]
+        }
+    }

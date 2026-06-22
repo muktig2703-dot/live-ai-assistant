@@ -26,6 +26,20 @@ def init_db():
     """)
 
     conn.execute("""
+CREATE TABLE IF NOT EXISTS users (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    name TEXT NOT NULL,
+
+    email TEXT UNIQUE NOT NULL,
+
+    password_hash TEXT NOT NULL
+
+)
+""")
+
+    conn.execute("""
 CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     chat_id INTEGER,
@@ -303,3 +317,52 @@ def get_shared_chat(token):
         return None
 
     return row[0]
+#-------------------------------------
+#--------USER AUTHENTICATION----------
+#-------------------------------------
+def create_user(
+    name,
+    email,
+    password_hash
+):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        """
+        INSERT INTO users
+        (
+            name,
+            email,
+            password_hash
+        )
+        VALUES (?, ?, ?)
+        """,
+        (
+            name,
+            email,
+            password_hash
+        )
+    )
+
+    conn.commit()
+    conn.close()
+    
+def get_user_by_email(email):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.row_factory = sqlite3.Row
+
+    user = conn.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE email = ?
+        """,
+        (email,)
+    ).fetchone()
+
+    conn.close()
+
+    return dict(user) if user else None
