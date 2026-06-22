@@ -71,6 +71,10 @@ class LoginRequest(BaseModel):
 class RenameRequest(BaseModel):
     title: str
 
+class NewChatRequest(BaseModel):
+
+    user_id: int
+
 
 # ----------------------------
 # HOME
@@ -86,21 +90,26 @@ def home():
 # ----------------------------
 # CHAT MANAGEMENT
 # ----------------------------
-
 @app.post("/chat/new")
-def new_chat():
+def new_chat(
+    request: NewChatRequest
+):
 
-    chat_id = create_chat()
+    chat_id = create_chat(
+        request.user_id
+    )
 
     return {
         "chat_id": chat_id
     }
 
 
-@app.get("/chats")
-def chats():
+@app.get("/chats/{user_id}")
+def chats(user_id: int):
 
-    return get_chats()
+    return get_chats(
+        user_id
+    )
 
 
 @app.put("/chat/{chat_id}/rename")

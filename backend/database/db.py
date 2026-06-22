@@ -9,9 +9,12 @@ def init_db():
     conn.execute("""
     CREATE TABLE IF NOT EXISTS chats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
         title TEXT NOT NULL,
         is_pinned INTEGER DEFAULT 0,
-        is_archived INTEGER DEFAULT 0
+        is_archived INTEGER DEFAULT 0,
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
     )
     """)
 
@@ -29,13 +32,11 @@ def init_db():
 CREATE TABLE IF NOT EXISTS users (
 
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-
     name TEXT NOT NULL,
-
     email TEXT UNIQUE NOT NULL,
-
-    password_hash TEXT NOT NULL
-
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP
+        DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
@@ -66,15 +67,24 @@ CREATE TABLE IF NOT EXISTS shared_chats (
 # CHAT FUNCTIONS
 # ------------------------
 
-def create_chat(title="New Chat"):
+def create_chat(user_id, title="New Chat"):
 
     conn = sqlite3.connect(DB_NAME)
 
     cursor = conn.execute(
-        "INSERT INTO chats (title) VALUES (?)",
-        (title,)
+    """
+    INSERT INTO chats
+    (
+        user_id,
+        title
     )
-
+    VALUES (?, ?)
+    """,
+    (
+        user_id,
+        title
+    )
+)
     chat_id = cursor.lastrowid
 
     conn.commit()
@@ -83,15 +93,23 @@ def create_chat(title="New Chat"):
     return chat_id
 
 
-def get_chats():
+def get_chats(user_id):
 
     conn = sqlite3.connect(DB_NAME)
 
-    cursor = conn.execute("""
-    SELECT id, title, is_pinned, is_archived
-    FROM chats
-    ORDER BY is_pinned DESC, id DESC
-    """)
+    cursor = conn.execute(
+        """
+        SELECT
+            id,
+            title,
+            is_pinned,
+            is_archived
+        FROM chats
+        WHERE user_id = ?
+        ORDER BY is_pinned DESC, id DESC
+        """,
+        (user_id,)
+    )
 
     chats = []
 

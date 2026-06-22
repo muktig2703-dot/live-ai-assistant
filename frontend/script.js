@@ -129,12 +129,26 @@ async function clearChat() {
 
 async function createNewChat() {
 
-    const response = await fetch(
-        "http://127.0.0.1:8000/chat/new",
-        {
-            method: "POST"
-        }
+    const user =
+    JSON.parse(
+        localStorage.getItem("user")
     );
+
+const response = await fetch(
+    "http://127.0.0.1:8000/chat/new",
+    {
+        method: "POST",
+
+        headers: {
+            "Content-Type":
+                "application/json"
+        },
+
+        body: JSON.stringify({
+            user_id: user.id
+        })
+    }
+);
 
     const data = await response.json();
 
@@ -662,9 +676,14 @@ function toggleVoice() {
 
 async function loadChats() {
 
-    const response = await fetch(
-        "http://127.0.0.1:8000/chats"
+    const user =
+    JSON.parse(
+        localStorage.getItem("user")
     );
+
+const response = await fetch(
+    `http://127.0.0.1:8000/chats/${user.id}`
+);
 
     const chats = await response.json();
 
