@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Live AI Assistant</title>
+    <title>Lumina AI</title>
     <link rel="stylesheet" href="style.css">
     <link
 rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
 />
+<link
+href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
@@ -15,8 +18,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-d
 <div class="app-layout">
 
     <!-- SIDEBAR -->
-
     <div class="sidebar">
+        <div class="logo">
+        ✦ Lumina AI
+        <span>
+            Illuminate Every Conversation
+        </span>
+    </div>
+
         <input
     type="text"
     id="chat-search"
@@ -48,12 +57,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-d
 
         <div class="header">
 
-    <h1>🤖 Live AI Assistant</h1>
+    <div class="chat-title">
+        Lumina AI
+    </div>
 
     <div>
 
         <select id="model-select">
-
             <option value="openai/gpt-4o-mini">
                 GPT-4o Mini
             </option>
@@ -63,8 +73,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-d
             </option>
 
             <option value="google/gemini-2.5-flash">
-    Gemini 2.5 Flash
-</option>
+                Gemini 2.5 Flash
+            </option>
 
             <option value="deepseek/deepseek-chat">
                 DeepSeek Chat

@@ -6,39 +6,29 @@
 
 /* SIDEBAR */
 .sidebar {
-
     width: 280px;
-
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     background: #f8f9fa;
-
-    color: black;
-
-    border-right: 1px solid #ddd;
+    border-right: 1px solid #e5e5e5;
 }
 
 #new-chat-btn {
-
     width: 100%;
-
     margin-bottom: 15px;
-
     background: white;
-
     color: black;
-
     border: 1px solid #ddd;
-
     border-radius: 12px;
-
     font-weight: 600;
+    height: 52px;
 }
 
 .dark-mode #new-chat-btn {
-
     background: #2f2f2f;
-
     color: white;
-
     border: 1px solid #444;
 }
 
@@ -48,28 +38,24 @@
 }
 
 #chat-list {
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
 }
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
+    font-family: 'Poppins', sans-serif;
+    background: #ffffff;
+    color: #111;
 }
 
 .container {
-
     flex: 1;
-
-    padding: 20px;
-
     display: flex;
-
     flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -80,12 +66,14 @@ h1 {
 }
 
 #chat-box {
-    height: 600px;
-    background: white;
-    border-radius: 12px;
+    flex : 1;
+    width : 100%;
+    box-sizing: border-box;
+    background:  white;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
     padding: 20px;
     overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .message {
@@ -109,19 +97,30 @@ h1 {
 }
 
 .user-message .bubble {
-    background: #0078ff;
+    background:
+    linear-gradient(
+        135deg,
+        #6366f1,
+        #8b5cf6
+    );
     color: white;
+    border-radius: 20px;
 }
 
 .ai-message .bubble {
-    background: #e9ecef;
-    color: black;
+    background:
+    rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    color: white;
+    border:
+    1px solid rgba(255,255,255,0.15);
 }
 
 .input-area {
     display: flex;
     margin-top: 15px;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 input {
@@ -133,13 +132,23 @@ input {
 }
 
 button {
-    padding: 14px 22px;
-    border: none;
-    border-radius: 10px;
-    background: #0078ff;
+    background:
+    linear-gradient(
+        135deg,
+        #6366f1,
+        #8b5cf6
+    );
     color: white;
-    cursor: pointer;
-    font-size: 16px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    box-shadow:
+    0 8px 20px rgba(
+        99,
+        102,
+        241,
+        0.3
+    );
 }
 
 button:hover {
@@ -160,10 +169,26 @@ button:hover {
     margin-bottom: 15px;
 }
 
+.chat-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+#model-select {
+    height: 50px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
 /* Dark Mode */
 
-.dark-mode body {
+body.dark-mode {
     background: #0f0f0f;
+    color: white;
 }
 
 .dark-mode .container {
@@ -171,11 +196,9 @@ button:hover {
     background: #0f0f0f;
 }
 
-.dark-mode #chat-box {
-
+body.dark-mode #chat-box {
     background: #181818;
-
-    border: 1px solid #2a2a2a;
+    border: 1px solid #2d2d2d;
 }
 
 .dark-mode input {
@@ -187,13 +210,10 @@ button:hover {
     border: 1px solid #444;
 }
 
-.dark-mode .sidebar {
-
-    background: #0a0a0a;
-
+body.dark-mode .sidebar {
+    background: #171717;
     color: white;
-
-    border-right: 1px solid #2f2f2f;
+    border-right: 1px solid #2d2d2d;
 }
 
 .dark-mode .chat-item:hover {
@@ -390,9 +410,7 @@ button:active {
 }
 
 .chat-actions button {
-
     padding: 4px 8px;
-
     font-size: 14px;
 }
 
@@ -417,21 +435,14 @@ button:active {
 }
 
 #chat-search {
-
     width: 100%;
-
-    padding: 12px;
-
+    height: 38px;
+    padding: 0 12px;
     margin-bottom: 14px;
-
-    border-radius: 12px;
-
+    border-radius: 10px;
     border: 1px solid #ccc;
-
     background: white;
-
     color: black;
-
     box-sizing: border-box;
 }
 
@@ -603,4 +614,40 @@ pre {
 .regen-btn:hover {
 
     opacity: 1;
+}
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 25px;
+}
+
+.logo span {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+body.dark-mode .logo {
+    color: white;
+}
+
+body.dark-mode .logo span {
+    color: #aaa;
+}
+
+.chat-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+}
+
+body.dark-mode .chat-title {
+    color: white;
+}
+button {
+    min-height: 50px;
+    padding: 0 18px;
+    font-size: 14px;
 }
