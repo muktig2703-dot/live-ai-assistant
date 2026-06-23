@@ -40,7 +40,8 @@ from database.db import (
     create_share_link,
     get_shared_chat,
     create_user,
-    get_user_by_email
+    get_user_by_email,
+    chat_belongs_to_user
 )
 
 SECRET_KEY = "my_super_secret_key"
@@ -76,7 +77,7 @@ def create_access_token(data):
 def get_current_user(
     authorization: str = Header(None)
 ):
-
+    print("AUTH HEADER =", authorization)
     if not authorization:
 
         raise HTTPException(
@@ -203,7 +204,20 @@ def rename(
     )
 ):
 
-    rename_chat(chat_id, request.title)
+    if not chat_belongs_to_user(
+        chat_id,
+        current_user
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    rename_chat(
+        chat_id,
+        current_user,
+        request.title
+    )
 
     return {
         "message": "Chat renamed"
@@ -217,7 +231,16 @@ def pin_chat(
     )
 ):
 
-    toggle_pin(chat_id)
+    if not chat_belongs_to_user(
+        chat_id,
+        current_user
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    toggle_pin(chat_id,current_user)
 
     return {
         "message": "Pin status updated"
@@ -231,7 +254,16 @@ def archive_chat(
     )
 ):
 
-    toggle_archive(chat_id)
+    if not chat_belongs_to_user(
+        chat_id,
+        current_user
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    toggle_archive(chat_id,current_user)
 
     return {
         "message": "Archive status updated"
@@ -246,7 +278,16 @@ def remove_chat(
     )
 ):
 
-    delete_chat(chat_id)
+    if not chat_belongs_to_user(
+        chat_id,
+        current_user
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    delete_chat(chat_id,current_user)
 
     return {
         "message": "Chat deleted"
@@ -259,22 +300,39 @@ def history(
     user_id: int = Depends(get_current_user)
 ):
 
+    if not chat_belongs_to_user(
+        chat_id,
+        user_id
+    ):
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
     return get_messages(chat_id)
 
 
 # ----------------------------
 # FILE UPLOAD
 # ----------------------------
-
 @app.post("/upload")
 async def upload_file(
     chat_id: int = Form(...),
     file: UploadFile = File(...),
-    current_user = Depends(
+    user_id: int = Depends(
         get_current_user
     )
 ):
-
+    if not chat_belongs_to_user(
+        chat_id,
+        user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+    
     os.makedirs(
         "uploads",
         exist_ok=True
@@ -329,6 +387,15 @@ def chat(
     request: ChatRequest,
     user_id: int = Depends(get_current_user)
 ):
+    if not chat_belongs_to_user(
+        request.chat_id,
+        user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+    
 
     chat_id = request.chat_id
     user_message = request.message
@@ -499,10 +566,19 @@ Document Content:
 @app.get("/chat/{chat_id}/export")
 def export_chat(
     chat_id: int,
-    current_user = Depends(
+    user_id: int = Depends(
         get_current_user
     )
 ):
+
+    if not chat_belongs_to_user(
+        chat_id,
+        user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     messages = get_messages(chat_id)
 
@@ -520,10 +596,19 @@ def export_chat(
 @app.get("/chat/{chat_id}/export/pdf")
 def export_chat_pdf(
     chat_id: int,
-    current_user = Depends(
+    user_id: int = Depends(
         get_current_user
     )
 ):
+
+    if not chat_belongs_to_user(
+        chat_id,
+        user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     messages = get_messages(chat_id)
 
@@ -581,12 +666,23 @@ def export_chat_pdf(
 @app.post("/chat/{chat_id}/share")
 def share_chat(
     chat_id: int,
-    current_user = Depends(
+    user_id: int = Depends(
         get_current_user
     )
 ):
 
-    token = create_share_link(chat_id)
+    if not chat_belongs_to_user(
+        chat_id,
+        user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    token = create_share_link(
+        chat_id
+    )
 
     return {
         "share_url":

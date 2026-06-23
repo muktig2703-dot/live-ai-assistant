@@ -126,20 +126,25 @@ def get_chats(user_id):
     return chats
 
 
-def rename_chat(chat_id, title):
+def rename_chat(chat_id, user_id, title):
 
     conn = sqlite3.connect(DB_NAME)
 
     conn.execute(
-        "UPDATE chats SET title=? WHERE id=?",
-        (title, chat_id)
-    )
+    """
+    UPDATE chats
+    SET title = ?
+    WHERE id = ?
+    AND user_id = ?
+    """,
+    (title, chat_id, user_id)
+)
 
     conn.commit()
     conn.close()
 
 
-def delete_chat(chat_id):
+def delete_chat(chat_id, user_id):
 
     conn = sqlite3.connect(DB_NAME)
 
@@ -149,14 +154,14 @@ def delete_chat(chat_id):
     )
 
     conn.execute(
-        "DELETE FROM chats WHERE id=?",
-        (chat_id,)
+        "DELETE FROM chats WHERE id=? AND user_id=?",
+        (chat_id, user_id)
     )
 
     conn.commit()
     conn.close()
 
-def toggle_pin(chat_id):
+def toggle_pin(chat_id, user_id):
 
     conn = sqlite3.connect(DB_NAME)
 
@@ -168,13 +173,14 @@ def toggle_pin(chat_id):
             ELSE 1
         END
         WHERE id = ?
-    """, (chat_id,))
+        AND user_id = ?
+    """, (chat_id, user_id))
 
     conn.commit()
     conn.close()
 
 
-def toggle_archive(chat_id):
+def toggle_archive(chat_id, user_id):
 
     conn = sqlite3.connect(DB_NAME)
 
@@ -186,7 +192,8 @@ def toggle_archive(chat_id):
             ELSE 1
         END
         WHERE id = ?
-    """, (chat_id,))
+        AND user_id = ?
+    """, (chat_id, user_id))
 
     conn.commit()
     conn.close()
@@ -384,3 +391,27 @@ def get_user_by_email(email):
     conn.close()
 
     return dict(user) if user else None
+
+def chat_belongs_to_user(
+    chat_id,
+    user_id
+):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    chat = conn.execute(
+        """
+        SELECT id
+        FROM chats
+        WHERE id = ?
+        AND user_id = ?
+        """,
+        (
+            chat_id,
+            user_id
+        )
+    ).fetchone()
+
+    conn.close()
+
+    return chat is not None

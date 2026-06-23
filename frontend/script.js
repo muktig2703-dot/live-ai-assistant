@@ -193,19 +193,25 @@ async function sendMessage() {
 
     const title =
         message.substring(0, 30);
-    await fetch(
-        `http://127.0.0.1:8000/chat/${currentChatId}/rename`,
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
-            body: JSON.stringify({
-                title: title
-            })
-        }
-    );
+    const token =
+    localStorage.getItem("token");
+
+await fetch(
+    `http://127.0.0.1:8000/chat/${currentChatId}/rename`,
+    {
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json",
+            Authorization:
+                `Bearer ${token}`
+        },
+
+        body: JSON.stringify({
+            title: title
+        })
+    }
+);
 
     currentChatTitle = title;
 
@@ -796,14 +802,14 @@ function renderChat(chat) {
 
 async function renameChat(chatId) {
 
-    const token =
-        localStorage.getItem("token");
-
     const newTitle = prompt(
         "Enter new chat name:"
     );
 
     if (!newTitle) return;
+
+    const token =
+        localStorage.getItem("token");
 
     await fetch(
         `http://127.0.0.1:8000/chat/${chatId}/rename`,
@@ -1034,16 +1040,16 @@ if (fileInput) {
     );
 }
 
-    async function uploadFile(event) {
+async function uploadFile(event) {
 
-        if (!currentChatId) {
+    if (!currentChatId) {
 
-    alert(
-        "Please select a chat first."
-    );
+        alert(
+            "Please select a chat first."
+        );
 
-    return;
-}
+        return;
+    }
 
     const file =
         event.target.files[0];
@@ -1059,15 +1065,26 @@ if (fileInput) {
     );
 
     formData.append(
-    "chat_id",
-    currentChatId
-);
+        "chat_id",
+        currentChatId
+    );
+
+    const token =
+        localStorage.getItem(
+            "token"
+        );
 
     const response =
         await fetch(
             "http://127.0.0.1:8000/upload",
             {
                 method: "POST",
+
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                },
+
                 body: formData
             }
         );
@@ -1391,7 +1408,7 @@ xhr.onload = () => {
 };
 const token =
     localStorage.getItem("token");
-
+console.log(token);
 xhr.setRequestHeader(
     "Authorization",
     `Bearer ${token}`
