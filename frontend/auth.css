@@ -172,3 +172,17 @@ body{
 
     text-decoration:none;
 }
+
+#password-rules{
+    margin-top:10px;
+    font-size:14px;
+}
+
+#password-rules p{
+    margin:4px 0;
+    color:#ef4444;
+}
+
+.valid{
+    color:#22c55e !important;
+}

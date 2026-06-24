@@ -415,3 +415,38 @@ def chat_belongs_to_user(
     conn.close()
 
     return chat is not None
+
+def update_user(user_id, name, email):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.execute(
+        """
+        UPDATE users
+        SET name = ?, email = ?
+        WHERE id = ?
+        """,
+        (name, email, user_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+def get_user_by_id(user_id):
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.row_factory = sqlite3.Row
+
+    user = conn.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    conn.close()
+
+    return dict(user) if user else None

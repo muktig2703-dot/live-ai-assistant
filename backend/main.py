@@ -41,7 +41,9 @@ from database.db import (
     get_shared_chat,
     create_user,
     get_user_by_email,
-    chat_belongs_to_user
+    chat_belongs_to_user,
+    update_user,
+    get_user_by_id
 )
 
 SECRET_KEY = "my_super_secret_key"
@@ -147,6 +149,10 @@ class RenameRequest(BaseModel):
 
 class NewChatRequest(BaseModel):
     user_id: int
+
+class ProfileUpdate(BaseModel):
+    name: str
+    email: str
 
 
 # ----------------------------
@@ -838,3 +844,31 @@ def login(
     return {
     "access_token": token
 }
+
+@app.get("/me")
+def get_me(
+    current_user = Depends(get_current_user)
+):
+
+    user = get_user_by_id(current_user)
+
+    return {
+        "name": user["name"],
+        "email": user["email"]
+    }
+
+@app.put("/profile")
+def update_profile(
+    data: ProfileUpdate,
+    current_user = Depends(get_current_user)
+):
+
+    update_user(
+        current_user["id"],
+        data.name,
+        data.email
+    )
+
+    return {
+        "message": "updated"
+    }

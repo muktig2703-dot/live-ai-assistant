@@ -1511,6 +1511,23 @@ async function register() {
     const password =
         document.getElementById("password").value;
 
+    const strongPassword =
+
+password.length >= 8 &&
+/[A-Z]/.test(password) &&
+/[a-z]/.test(password) &&
+/\d/.test(password) &&
+/[!@#$%^&*]/.test(password);
+
+if(!strongPassword){
+
+    alert(
+        "Password does not meet requirements."
+    );
+
+    return;
+}
+
     const response = await fetch(
         "http://127.0.0.1:8000/register",
         {
@@ -1608,4 +1625,153 @@ function usePrompt(text) {
     document.getElementById("message").value = text;
 
     document.getElementById("message").focus();
+}
+
+const passwordInput =
+    document.getElementById("password");
+
+if(passwordInput){
+
+    passwordInput.addEventListener(
+        "input",
+        validatePassword
+    );
+}
+
+function validatePassword(){
+
+    const password =
+        document.getElementById("password").value;
+
+    toggleRule(
+        "length-rule",
+        password.length >= 8
+    );
+
+    toggleRule(
+        "uppercase-rule",
+        /[A-Z]/.test(password)
+    );
+
+    toggleRule(
+        "lowercase-rule",
+        /[a-z]/.test(password)
+    );
+
+    toggleRule(
+        "number-rule",
+        /\d/.test(password)
+    );
+
+    toggleRule(
+        "special-rule",
+        /[!@#$%^&*]/.test(password)
+    );
+}
+
+function toggleRule(id, valid){
+
+    const rule =
+        document.getElementById(id);
+
+    if(valid){
+
+        rule.classList.add("valid");
+        rule.innerHTML =
+            "✅ " +
+            rule.innerText.substring(2);
+
+    } else {
+
+        rule.classList.remove("valid");
+        rule.innerHTML =
+            "❌ " +
+            rule.innerText.substring(2);
+    }
+}
+
+document
+    .getElementById("profile-btn")
+    ?.addEventListener(
+        "click",
+        loadProfile
+    );
+
+function closeProfile() {
+
+    document
+        .getElementById("profile-modal")
+        .style.display = "none";
+}
+
+async function loadProfile() {
+
+    const token =
+        localStorage.getItem("token");
+
+    const response =
+        await fetch(
+            "http://127.0.0.1:8000/me",
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+            }
+        );
+
+    const user =
+        await response.json();
+
+    document.getElementById(
+        "profile-name"
+    ).value = user.name;
+
+    document.getElementById(
+        "profile-email"
+    ).value = user.email;
+
+    document.getElementById(
+        "profile-modal"
+    ).style.display = "flex";
+}
+
+async function updateProfile() {
+
+    const token =
+        localStorage.getItem("token");
+
+    const name =
+        document.getElementById(
+            "profile-name"
+        ).value;
+
+    const email =
+        document.getElementById(
+            "profile-email"
+        ).value;
+
+    await fetch(
+        "http://127.0.0.1:8000/profile",
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type":
+                    "application/json",
+
+                Authorization:
+                    `Bearer ${token}`
+            },
+
+            body: JSON.stringify({
+                name,
+                email
+            })
+        }
+    );
+
+    alert("Profile Updated");
+
+    closeProfile();
 }
