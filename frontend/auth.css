@@ -1,0 +1,174 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+}
+
+.auth-page{
+
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+    radial-gradient(
+        circle at top,
+        #0f172a,
+        #020617
+    );
+
+    overflow:hidden;
+}
+
+.auth-card{
+
+    width:420px;
+
+    padding:40px;
+
+    border-radius:24px;
+
+    background:
+    rgba(15,23,42,0.85);
+
+    backdrop-filter:blur(12px);
+
+    border:
+    1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+    0 10px 40px rgba(0,0,0,0.35);
+
+    position:relative;
+}
+
+.auth-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:24px;
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    pointer-events:none;
+}
+
+.auth-logo{
+    text-align:center;
+    margin-bottom:20px;
+    color: white;
+}
+
+.auth-logo img{
+
+    width:80px;
+
+    height:80px;
+
+    object-fit:contain;
+}
+.auth-subtitle{
+
+    text-align:center;
+
+    color:#94a3b8;
+
+    margin-bottom:30px;
+}
+
+.auth-card h2{
+
+    text-align:center;
+
+    color:white;
+
+    margin-bottom:25px;
+}
+
+.auth-card input{
+
+    width:100%;
+
+    margin-bottom:15px;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    background:
+    rgba(255,255,255,0.04);
+
+    color:white;
+
+    outline:none;
+
+    transition:.25s;
+}
+
+.auth-card input:focus{
+
+    border-color:#6366f1;
+
+    background:
+    rgba(255,255,255,0.06);
+}
+
+.auth-card input::placeholder{
+
+    color:#94a3b8;
+}
+
+.auth-card button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    color:white;
+
+    background:#4f46e5;
+
+    margin-top:10px;
+
+    transition:.3s;
+}
+
+.auth-card button:hover{
+
+    background:#6366f1;
+
+    transform:translateY(-2px);
+}
+
+.auth-card a{
+
+    display:block;
+
+    text-align:center;
+
+    margin-top:20px;
+
+    color:#60a5fa;
+
+    text-decoration:none;
+}

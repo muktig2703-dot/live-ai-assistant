@@ -166,6 +166,14 @@ async function sendMessage() {
 
     const message = input.value.trim();
 
+    const welcome =
+document.getElementById("welcome-screen");
+
+if (welcome) {
+
+    welcome.style.display = "none";
+}
+
     if (!message) return;
     if (editingMessage) {
 
@@ -1482,13 +1490,9 @@ if (
 
     !token &&
 
-    !currentPage.includes(
-        "login.html"
-    ) &&
-
-    !currentPage.includes(
-        "register.html"
-    )
+    !currentPage.includes("login.html") &&
+    !currentPage.includes("register.html") &&
+    !currentPage.includes("home.html")
 
 ) {
 
@@ -1582,7 +1586,7 @@ async function login() {
     );
 
     window.location.href =
-        "index.html";
+        "chat.html";
 }
 
 else {
@@ -1599,4 +1603,9 @@ function logout() {
     window.location.href =
         "login.html";
 }
+function usePrompt(text) {
 
+    document.getElementById("message").value = text;
+
+    document.getElementById("message").focus();
+}

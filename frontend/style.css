@@ -616,25 +616,25 @@ pre {
     opacity: 1;
 }
 .logo {
-    font-size: 28px;
-    font-weight: 700;
-    color: #111;
-    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
 }
 
 .logo span {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
-}
-
-body.dark-mode .logo {
-    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
 }
 
 body.dark-mode .logo span {
-    color: #aaa;
+    color: white;
 }
 
 .chat-title {
@@ -650,4 +650,77 @@ button {
     min-height: 50px;
     padding: 0 18px;
     font-size: 14px;
+}
+
+#welcome-screen {
+
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    color: inherit;
+}
+
+.welcome-robot {
+
+    font-size: 80px;
+
+    animation: floatBot 3s ease-in-out infinite;
+}
+
+#welcome-screen h2 {
+
+    margin-top: 10px;
+
+    font-size: 32px;
+}
+
+#welcome-screen p {
+
+    max-width: 600px;
+
+    color: #888;
+
+    margin-bottom: 25px;
+}
+
+.suggested-prompts {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    justify-content: center;
+}
+
+.suggested-prompts button {
+
+    padding: 12px 18px;
+
+    border-radius: 12px;
+}
+
+@keyframes floatBot {
+
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
 }

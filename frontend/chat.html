@@ -20,11 +20,9 @@ rel="stylesheet">
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="logo">
-        ✦ Lumina AI
-        <span>
-            Illuminate Every Conversation
-        </span>
-    </div>
+    <img src="assets/logo.png" alt="Lumina AI Logo">
+    <span>Lumina AI</span>
+</div>
 
         <input
     type="text"
@@ -112,6 +110,41 @@ rel="stylesheet">
         </div>
 
         <div id="chat-box">
+
+    <div id="welcome-screen">
+
+        <div class="welcome-robot">
+            🤖
+        </div>
+
+        <h2>Hi, I'm Lumina</h2>
+
+        <p>
+            Your AI companion for coding,
+            learning, documents and productivity.
+        </p>
+
+        <div class="suggested-prompts">
+
+            <button onclick="usePrompt('Build a Python project')">
+                Build a Python Project
+            </button>
+
+            <button onclick="usePrompt('Explain a concept')">
+                Explain a Concept
+            </button>
+
+            <button onclick="usePrompt('Summarize a PDF')">
+                Summarize a PDF
+            </button>
+
+            <button onclick="usePrompt('Prepare me for an interview')">
+                Prepare for Interview
+            </button>
+
+        </div>
+
+    </div>
 
     <div id="drop-zone">
         📂 Drag & Drop Files Here

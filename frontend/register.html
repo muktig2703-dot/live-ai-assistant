@@ -2,50 +2,58 @@
 <html>
 
 <head>
+    <title>Register | Lumina AI</title>
 
-    <title>Register</title>
+    <link rel="stylesheet" href="auth.css">
 
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 </head>
 
-<body>
+<div class="auth-page">
 
-    <h2>Register</h2>
+    <div class="auth-card">
 
-    <input
-        id="name"
-        placeholder="Name"
-    >
+        <div class="auth-logo">
+    <img src="assets/logo.png" alt="Lumina AI">
+    <h1>Lumina AI</h1>
+</div>
+        <p class="auth-subtitle">
+            Illuminate Every Conversation
+        </p>
 
-    <br><br>
+        <h2>Create Account</h2>
 
-    <input
-        id="email"
-        placeholder="Email"
-    >
+        <input
+            id="name"
+            placeholder="Name"
+        >
 
-    <br><br>
+        <input
+            id="email"
+            placeholder="Email"
+        >
 
-    <input
-        id="password"
-        type="password"
-        placeholder="Password"
-    >
+        <input
+            id="password"
+            type="password"
+            placeholder="Password"
+        >
 
-    <br><br>
+        <button onclick="register()">
+            Register
+        </button>
 
-    <button onclick="register()">
-        Register
-    </button>
+        <a href="login.html">
+            Already have an account?
+        </a>
 
-    <br><br>
+    </div>
 
-    <a href="login.html">
-        Already have an account?
-        Login
-    </a>
+</div>
 
-    <script src="script.js"></script>
-
-</body>
+<script src="script.js"></script>
 
 </html>
