@@ -1,197 +1,345 @@
-# Live AI Assistant
+# 🤖 Lumina AI Assistant
 
-## Overview
-
-Live AI Assistant is an AI-powered chatbot that can answer user questions, access the internet for real-time information, verify responses using trusted sources, and remember previous interactions.
-
-The project aims to combine Large Language Models (LLMs), web search, tool calling, AI agents, and memory into a single intelligent assistant.
+A full-stack AI-powered assistant built with **FastAPI, JavaScript, SQLite, and OpenRouter** that combines conversational AI, document analysis, image understanding, voice interaction, chat management, and AI image generation into a single platform.
 
 ---
 
-## Project Goal
+## ✨ Features
 
-Build an AI assistant that can:
+### 🔐 Authentication & Security
 
-- Answer user questions naturally
-- Search the web for real-time information
-- Verify facts before responding
-- Cite information sources
-- Remember previous conversations
-- Use tools when required
-- Provide a ChatGPT-like experience with live internet access
+* User Registration and Login
+* JWT-based Authentication
+* Protected API Routes
+* User-specific Chat History
+
+### 💬 Advanced Chat System
+
+* Create Multiple Chats
+* Rename Chats
+* Delete Chats
+* Pin Important Chats
+* Archive Conversations
+* Search Through Chat History
+* Real-Time Streaming AI Responses
+
+### 🧠 Multi-Model AI Support
+
+Choose between multiple AI models:
+
+* OpenAI GPT Models
+* Claude Models
+* Gemini Models
+* DeepSeek Models
+* Additional OpenRouter-supported Models
+
+### 🌐 Web Search Integration
+
+* Automatic Search Detection
+* Real-Time Internet Search
+* AI Responses Enhanced with Web Results
+* Up-to-Date Information Retrieval
+
+### 📄 Document Intelligence
+
+Upload and analyze:
+
+* PDF Files
+* DOCX Documents
+* TXT Files
+
+Capabilities:
+
+* Document Summarization
+* Question Answering
+* Context-Aware Responses
+* Document-Aware Conversations
+
+### 🖼️ Vision AI
+
+Upload images and ask questions about them.
+
+Supported formats:
+
+* PNG
+* JPG
+* JPEG
+
+Capabilities:
+
+* Image Understanding
+* Visual Question Answering
+* Scene Analysis
+
+### 🎨 AI Image Generation
+
+Generate images directly from chat prompts.
+
+Examples:
+
+* "Generate an image of a futuristic city"
+* "Draw a cyberpunk robot"
+* "Create an illustration of a dragon"
+
+### 🎤 Voice Features
+
+#### Speech-to-Text
+
+* Voice Input
+* Browser-Based Speech Recognition
+
+#### Text-to-Speech
+
+* AI Responses Read Aloud
+* Voice Toggle Support
+* Multi-Language Voice Support
+
+### 📤 Export & Sharing
+
+#### Export Chats
+
+* TXT Export
+* PDF Export
+
+#### Share Chats
+
+* Public Shareable Links
+* Conversation Sharing
+
+### 💻 Developer-Friendly Features
+
+* Markdown Rendering
+* Syntax Highlighting
+* Copy Code Buttons
+* Code Language Detection
+* Streaming Responses
+
+### 🎨 Modern User Experience
+
+* Dark Mode
+* Light Mode
+* Responsive Design
+* Drag-and-Drop File Upload
+* Upload Progress Tracking
+* Welcome Screen
+* Clean Chat Interface
 
 ---
 
-## MVP (Version 1)
-
-The first version will only include:
-
-### Features
-
-- User enters a question
-- AI generates an answer
-- Answer is displayed in a chat interface
-
-### Example
-
-User:
-
-What is Python?
-
-Assistant:
-
-Python is a high-level programming language used for web development, data science, automation, machine learning, and more.
-
----
-
-## User Flow
+## 🏗️ System Architecture
 
 User
 ↓
-Frontend
+Frontend (HTML, CSS, JavaScript)
 ↓
-Backend API
+FastAPI Backend
 ↓
-LLM (Gemini/OpenAI)
+Authentication Layer (JWT)
 ↓
-Backend API
+AI Services & Tools
 ↓
-Frontend
+OpenRouter Models
 ↓
-User
+Database (SQLite)
+
+Additional Services:
+
+* Web Search
+* Document Processing
+* Vision Analysis
+* Image Generation
+* Speech Services
 
 ---
 
-## API Contract
-
-### Request
-
-POST /chat
-
-```json
-{
-  "question": "What is Python?"
-}
-```
-
-### Response
-
-```json
-{
-  "answer": "Python is a high-level programming language..."
-}
-```
-
----
-
-## Technology Stack
+## 🛠️ Technology Stack
 
 ### Frontend
 
-- Next.js
-- React
-- Tailwind CSS
+* HTML5
+* CSS3
+* JavaScript (Vanilla JS)
+* Marked.js
+* Highlight.js
 
 ### Backend
 
-- FastAPI
-- Python
+* FastAPI
+* Python
 
-### AI Model
+### Database
 
-- Google Gemini API
+* SQLite
 
-### Future Technologies
+### Authentication
 
-- LangGraph
-- Tavily Search
-- PostgreSQL
-- Redis
-- Vector Database
+* JWT (JSON Web Tokens)
+* Passlib (bcrypt)
+
+### AI & LLM
+
+* OpenRouter API
+* GPT Models
+* Claude Models
+* Gemini Models
+* DeepSeek Models
+
+### Document Processing
+
+* PyPDF
+* python-docx
+
+### Image Processing
+
+* Vision Models
+* Base64 Encoding
+
+### PDF Export
+
+* ReportLab
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 live-ai-assistant/
 
-├── frontend/
 ├── backend/
-├── docs/
-└── README.md
+│   ├── agents/
+│   ├── services/
+│   ├── tools/
+│   ├── database/
+│   ├── uploads/
+│   ├── main.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── css/
+│   ├── js/
+│   ├── assets/
+│   ├── home.html
+│   ├── login.html
+│   ├── register.html
+│   └── chat.html
+│
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## Development Roadmap
+## 🚀 Installation
 
-### Version 1 - Basic Chatbot
+### Clone Repository
 
-- FastAPI backend
-- Gemini integration
-- Chat UI
-- Question-answer flow
+```bash
+git clone https://github.com/yourusername/lumina-ai-assistant.git
 
-### Version 2 - Internet Search
+cd lumina-ai-assistant
+```
 
-- Real-time web search
-- Latest information retrieval
-- Source citations
+### Backend Setup
 
-### Version 3 - Tool Calling
+```bash
+cd backend
 
-- Search tool
-- Calculator tool
-- Weather tool
-- News tool
+python -m venv venv
 
-### Version 4 - Memory
+venv\Scripts\activate
 
-- Store conversations
-- User-specific memory
-- Conversation history
+pip install -r requirements.txt
+```
 
-### Version 5 - Verification Layer
+### Environment Variables
 
-- Fact checking
-- Source validation
-- Confidence scoring
+Create a `.env` file:
 
-### Version 6 - Voice Assistant
+```env
+OPENROUTER_API_KEY=your_api_key_here
+```
 
-- Speech-to-text
-- Text-to-speech
+### Run Backend
 
-### Version 7 - Multi-Agent System
+```bash
+python -m uvicorn main:app --reload
+```
 
-- Research Agent
-- Verification Agent
-- Memory Agent
-- Response Agent
+Backend URL:
 
----
+```text
+http://127.0.0.1:8000
+```
 
-## Success Criteria for MVP
+### Run Frontend
 
-The project is considered successful when:
-
-- User can ask a question
-- Backend receives the question
-- Gemini generates an answer
-- Frontend displays the answer
-- End-to-end chat works successfully
+Open the frontend folder using VS Code Live Server or any local web server.
 
 ---
 
-## Future Enhancements
+## 📸 Screenshots
 
-- PDF Chat
-- YouTube Video Summarizer
-- Personal AI Memory
-- Voice Commands
-- Multi-Agent Architecture
-- RAG (Retrieval-Augmented Generation)
-- Mobile Application
+Add screenshots here:
+
+### Home Page
+
+![Home](screenshots/home.png)
+
+### Chat Interface
+
+![Chat](screenshots/chat.png)
+
+### Document Analysis
+
+![Document](screenshots/document.png)
+
+### Image Generation
+
+![Image Generation](screenshots/image-generation.png)
+
+### Dark Mode
+
+![Dark Mode](screenshots/dark-mode.png)
 
 ---
+
+## 🎯 Key Learning Outcomes
+
+This project demonstrates:
+
+* Full-Stack Development
+* REST API Design
+* JWT Authentication
+* Database Management
+* AI Model Integration
+* Streaming Responses
+* File Processing
+* Speech Recognition
+* Text-to-Speech
+* Image Generation
+* Vision AI
+* Prompt Engineering
+* Software Architecture
+
+---
+
+## 🔮 Future Enhancements
+
+* RAG (Retrieval-Augmented Generation)
+* Vector Database Integration
+* Long-Term AI Memory
+* Multi-Agent Architecture
+* Mobile Application
+* Team Collaboration
+* Cloud Deployment
+* Docker Support
+* OAuth Login
+* Real-Time Collaboration
+
+---
+
+## 👨‍💻 Author
+
+Developed by Cheeku
+
+A full-stack AI assistant project showcasing modern AI application development with FastAPI and Large Language Models.

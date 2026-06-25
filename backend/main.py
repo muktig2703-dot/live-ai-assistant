@@ -2,8 +2,6 @@ import os
 import shutil
 import requests
 from dotenv import load_dotenv
-from jose import jwt
-from jose import JWTError
 from datetime import datetime, timedelta
 from fastapi import Header
 from fastapi import HTTPException
@@ -22,10 +20,12 @@ from services.document_service import extract_text
 from tools.search_tool import search_web
 from agents.search_agent import needs_search
 from fastapi.responses import FileResponse
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
 from services.image_service import encode_image
 from fastapi.responses import StreamingResponse
+from jose import jwt
+from jose import JWTError
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 from passlib.context import CryptContext
 from database.db import (
     init_db,
