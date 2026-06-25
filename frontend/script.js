@@ -166,15 +166,41 @@ async function sendMessage() {
 
     const message = input.value.trim();
 
-    const welcome =
+const welcome =
 document.getElementById("welcome-screen");
 
 if (welcome) {
-
     welcome.style.display = "none";
 }
 
-    if (!message) return;
+if (!message) return;
+
+/* IMAGE DETECTION */
+
+const imageKeywords = [
+    "generate image",
+    "create image",
+    "draw",
+    "make an image",
+    "image of",
+    "picture of",
+    "illustration of",
+    "art of"
+];
+
+const isImageRequest =
+    imageKeywords.some(keyword =>
+        message.toLowerCase().includes(keyword)
+    );
+
+if (isImageRequest) {
+
+    await generateImage(message);
+
+    input.value = "";
+
+    return;
+}
     if (editingMessage) {
 
     const nextMessage =
@@ -564,9 +590,10 @@ function toggleTheme() {
 
     if (document.body.classList.contains("dark-mode")) {
         btn.innerText = "☀️ Light Mode";
-    }
-    else {
+        localStorage.setItem("theme", "dark");
+    } else {
         btn.innerText = "🌙 Dark Mode";
+        localStorage.setItem("theme", "light");
     }
 }
 
@@ -1774,4 +1801,65 @@ async function updateProfile() {
     alert("Profile Updated");
 
     closeProfile();
+}
+
+function selectModel(model) {
+
+    document.getElementById("model-select").value = model;
+
+    alert("Selected: " + model);
+}
+
+async function generateImage(prompt) {
+
+    const chatBox =
+    document.getElementById("chat-box");
+
+chatBox.innerHTML += `
+<div class="message ai-message">
+    <div class="bubble">
+        🎨 Generating image...
+    </div>
+</div>
+`;
+
+    const response = await fetch(
+        "http://127.0.0.1:8000/generate-image",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization":
+                    "Bearer " +
+                    localStorage.getItem("token")
+            },
+            body: JSON.stringify({
+                prompt
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    addImageMessage(data.image_url);
+}
+
+function addImageMessage(imageUrl) {
+
+    const chatBox =
+        document.getElementById("chat-box");
+
+    chatBox.innerHTML += `
+        <div class="message ai-message">
+            <div class="bubble">
+                <img
+                    src="${imageUrl}"
+                    class="generated-image"
+                >
+            </div>
+        </div>
+    `;
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
 }

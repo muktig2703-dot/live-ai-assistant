@@ -1,5 +1,7 @@
 import os
 import shutil
+import requests
+from dotenv import load_dotenv
 from jose import jwt
 from jose import JWTError
 from datetime import datetime, timedelta
@@ -45,7 +47,9 @@ from database.db import (
     update_user,
     get_user_by_id
 )
+load_dotenv()
 
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 SECRET_KEY = "my_super_secret_key"
 
 ALGORITHM = "HS256"
@@ -154,6 +158,8 @@ class ProfileUpdate(BaseModel):
     name: str
     email: str
 
+class ImageRequest(BaseModel):
+    prompt: str
 
 # ----------------------------
 # HOME
@@ -871,4 +877,18 @@ def update_profile(
 
     return {
         "message": "updated"
+    }
+
+from urllib.parse import quote
+
+@app.post("/generate-image")
+async def generate_image(data: ImageRequest):
+
+    image_url = (
+        "https://image.pollinations.ai/prompt/"
+        + quote(data.prompt)
+    )
+
+    return {
+        "image_url": image_url
     }

@@ -13,7 +13,7 @@ rel="stylesheet">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
-<body>
+<body class="dark-mode">
 
 <div class="app-layout">
 
@@ -65,7 +65,7 @@ rel="stylesheet">
 
     <div>
 
-        <select id="model-select">
+        <select id="model-select" style="display:none;">
             <option value="openai/gpt-4o-mini">
                 GPT-4o Mini
             </option>
@@ -148,6 +148,38 @@ rel="stylesheet">
 
         </div>
 
+        <div class="model-cards">
+
+    <div class="model-card"
+         onclick="selectModel('openai/gpt-4o-mini')">
+        <div class="model-icon">🧠</div>
+        <h3>GPT-4o Mini</h3>
+        <p>Fast & balanced</p>
+    </div>
+
+    <div class="model-card"
+         onclick="selectModel('anthropic/claude-3-haiku')">
+        <div class="model-icon">🎭</div>
+        <h3>Claude Haiku</h3>
+        <p>Great reasoning</p>
+    </div>
+
+    <div class="model-card"
+         onclick="selectModel('google/gemini-2.5-flash')">
+        <div class="model-icon">✨</div>
+        <h3>Gemini Flash</h3>
+        <p>Fastest responses</p>
+    </div>
+
+    <div class="model-card"
+         onclick="selectModel('deepseek/deepseek-chat')">
+        <div class="model-icon">🚀</div>
+        <h3>DeepSeek</h3>
+        <p>Best for coding</p>
+    </div>
+
+</div>
+
     </div>
 
     <div id="drop-zone">
@@ -160,7 +192,7 @@ rel="stylesheet">
 
             <input
                 type="text"
-                id="user-input"
+                id="message"
                 placeholder="Type a message..."
             >
 
